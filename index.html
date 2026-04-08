@@ -116,7 +116,7 @@ const MN_SHORT=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov
 let rawData=ALLDATA.map(r=>({date:r.d,k:r.k,c:r.c,i:r.i,s:r.s}));
 let cotistas=[{name:"Fernando César Vaz Andreo",conta:"6704186",cotas:415825.222760,aportes:482000},{name:"Lucas Zorzenoni Andreo",conta:"6702957",cotas:394826.222660,aportes:455000},{name:"Bruno Zorzenoni Andreo",conta:"6702965",cotas:218306.878778,aportes:247000},{name:"Eduardo Guilherme Vaz Andreo",conta:"6703449",cotas:171110.669073,aportes:181000}];
 let currentTab="capa",currentPeriod="ALL",cotaChart=null,barChart=null,inputLog=[],inputUnlocked=false,investidoresUnlocked=false;
-let showCDI=true,showIbov=true,showSP=true;
+let showCDI=false,showIbov=false,showSP=false;
 
 const fBRL=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const fPct=n=>(n>=0?"+":"")+(n*100).toFixed(2).replace(".",",")+"%";
@@ -144,7 +144,24 @@ function calcDynPerf(){
   });
 }
 
-function calcAnnualReturns(dp){const byY={};dp.forEach(p=>{const y="20"+p.m.split("/")[1];if(!byY[y])byY[y]={last:p};else byY[y].last=p});const yrs=Object.keys(byY).sort();return yrs.map((y,i)=>{const base=i===0?1:byY[yrs[i-1]].last.ck;const ret=((byY[y].last.ck/base)-1)*100;return{year:y,cota:byY[y].last.ck,ret:Math.round(ret*100)/100}})}
+function calcAnnualReturns(dp){
+  // Group by year
+  const byY={};dp.forEach(p=>{const y="20"+p.m.split("/")[1];if(!byY[y])byY[y]={last:p};else byY[y].last=p});
+  const yrs=Object.keys(byY).sort();
+  // Find last trading day of each year from rawData for proper base
+  const lastDayByYear={};
+  rawData.forEach(d=>{const y=d.date.slice(0,4);if(!lastDayByYear[y]||d.date>lastDayByYear[y].date)lastDayByYear[y]=d});
+  return yrs.map((y,i)=>{
+    let base;
+    if(i===0){base=1}// First year (2023): base=1
+    else{
+      const prevY=String(parseInt(y)-1);
+      base=lastDayByYear[prevY]?lastDayByYear[prevY].k:byY[yrs[i-1]].last.ck;
+    }
+    const ret=((byY[y].last.ck/base)-1)*100;
+    return{year:y,cota:byY[y].last.ck,ret:Math.round(ret*100)/100}
+  });
+}
 
 function kpi(l,v){return`<div class="kpi"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div></div>`}
 
@@ -163,7 +180,7 @@ function renderCapa(){
   let h=`<div class="kpi-grid">${kpi("Cota Atual",cur.toFixed(6).replace(".",","))}${kpi("PL do Clube",fBRL(pl))}${kpi("Cotas",fCotas(tc))}${kpi("Lucro Bruto",fBRL(lb))}${kpi("Lucro Líquido*",fBRL(ll))}${kpi("Início","10/07/2023")}${kpi("Última Cota",fD(last.date))}</div>`;
   h+=`<div class="period-row">`;["1M","3M","6M","12M","YTD","ALL"].forEach(p=>{h+=`<button class="period-btn ${currentPeriod===p?"active":""}" onclick="setPeriod('${p}')">${p==="YTD"?"Ano":p==="ALL"?"Total":p}</button>`});
   h+=`<span style="margin-left:auto;font-size:14px;font-weight:700;font-family:monospace;color:${pR>=0?"var(--grn)":"var(--red)"}">${fPct(pR)}</span></div>`;
-  h+=`<div class="chart-box"><canvas id="cotaChart" height="350"></canvas>`;
+  h+=`<div class="chart-box"><div style="position:relative;height:350px"><canvas id="cotaChart"></canvas></div>`;
   h+=`<div class="toggle-row"><div class="toggle-item" style="color:#56b3e8"><div class="toggle-dot" style="background:#56b3e8"></div>Konstan</div>`;
   h+=`<div class="toggle-item ${showCDI?"":"off"}" style="color:#fbbf24" onclick="toggleLine('cdi')"><div class="toggle-dot" style="background:#fbbf24"></div>CDI</div>`;
   h+=`<div class="toggle-item ${showIbov?"":"off"}" style="color:#f87171" onclick="toggleLine('ibov')"><div class="toggle-dot" style="background:#f87171"></div>Ibovespa</div>`;
@@ -176,19 +193,22 @@ function renderCapa(){
   h+=`<p class="footnote">* Lucro líquido estimado com alíquota de 15% sobre ganho de capital.</p>`;
   document.getElementById("tab-capa").innerHTML=h;
   setTimeout(()=>{const ctx=document.getElementById("cotaChart");if(!ctx)return;if(cotaChart)cotaChart.destroy();
-    const allVals=[];filtered.forEach(d=>{allVals.push(d.k);if(showCDI)allVals.push(d.c);if(showIbov)allVals.push(d.i);if(showSP)allVals.push(d.s)});
+    // Normalize all cotas to 1.0 at start of period
+    const baseK=filtered[0].k,baseC=filtered[0].c,baseI=filtered[0].i,baseS=filtered[0].s;
+    const normK=filtered.map(d=>d.k/baseK),normC=filtered.map(d=>d.c/baseC),normI=filtered.map(d=>d.i/baseI),normS=filtered.map(d=>d.s/baseS);
+    const allVals=[...normK];if(showCDI)allVals.push(...normC);if(showIbov)allVals.push(...normI);if(showSP)allVals.push(...normS);
     const yMin=Math.floor(Math.min(...allVals)*100)/100-0.02;const yMax=Math.ceil(Math.max(...allVals)*100)/100+0.02;
-    const ds=[{label:"Konstan",data:filtered.map(d=>d.k),borderColor:"#56b3e8",backgroundColor:"rgba(86,179,232,0.06)",fill:true,tension:0.3,pointRadius:0,pointHitRadius:8,borderWidth:2.5}];
-    if(showCDI)ds.push({label:"CDI",data:filtered.map(d=>d.c),borderColor:"#fbbf24",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]});
-    if(showIbov)ds.push({label:"Ibovespa",data:filtered.map(d=>d.i),borderColor:"#f87171",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]});
-    if(showSP)ds.push({label:"S&P500 (BRL)",data:filtered.map(d=>d.s),borderColor:"#a78bfa",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]});
+    const ds=[{label:"Konstan",data:normK,borderColor:"#56b3e8",backgroundColor:"rgba(86,179,232,0.06)",fill:true,tension:0.3,pointRadius:0,pointHitRadius:8,borderWidth:2.5}];
+    if(showCDI)ds.push({label:"CDI",data:normC,borderColor:"#fbbf24",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]});
+    if(showIbov)ds.push({label:"Ibovespa",data:normI,borderColor:"#f87171",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]});
+    if(showSP)ds.push({label:"S&P500 (BRL)",data:normS,borderColor:"#a78bfa",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]});
     const xlabels=filtered.map(d=>{const[y,m,dd]=d.date.split("-");return dd+"/"+m+"/"+y.slice(2)});
-    cotaChart=new Chart(ctx,{type:"line",data:{labels:xlabels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(filtered[items[0].dataIndex].date),label:c=>c.dataset.label+": "+c.parsed.y.toFixed(6)}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:10,callback:function(val,idx){const d=filtered[idx];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{min:yMin,max:yMax,ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(2)},grid:{display:false}}}}})},50)}
+    cotaChart=new Chart(ctx,{type:"line",data:{labels:xlabels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(filtered[items[0].dataIndex].date),label:c=>{const ret=((c.parsed.y-1)*100).toFixed(2);return c.dataset.label+": "+c.parsed.y.toFixed(6)+" ("+(ret>=0?"+":"")+ret+"%)"}}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:10,callback:function(val,idx){const d=filtered[idx];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{min:yMin,max:yMax,ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(2)},grid:{display:false}}}}})},50)}
 
 function renderPerformance(){const dp=calcDynPerf(),ar=calcAnnualReturns(dp);
   let h=`<h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin-bottom:14px">Retornos Anuais</h3><div class="annual-grid" style="grid-template-columns:repeat(${ar.length},1fr)">`;
   ar.forEach(a=>{h+=`<div class="annual-card"><div style="font-size:12px;color:#505a6b;font-weight:700;margin-bottom:8px">${a.year}</div><div style="font-size:22px;font-weight:800;font-family:monospace;color:${a.ret>=0?"var(--grn)":"var(--red)"}">${a.ret>=0?"+":""}${a.ret.toFixed(2)}%</div><div style="font-size:10px;color:#505a6b;margin-top:6px;font-family:monospace">Cota: ${a.cota.toFixed(6)}</div></div>`});
-  h+=`</div><h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin-bottom:14px">Retornos Mensais</h3><div class="chart-box"><canvas id="barChart" height="340"></canvas></div>`;
+  h+=`</div><h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin-bottom:14px">Retornos Mensais</h3><div class="chart-box"><div style="position:relative;height:340px"><canvas id="barChart"></canvas></div></div>`;
   h+=`<h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin:28px 0 12px">Cotas Mensais</h3><div style="background:var(--card);border-radius:14px;border:1px solid var(--bd);overflow:hidden"><div style="overflow-x:auto"><table class="data-table"><thead><tr><th style="text-align:left">Data</th><th style="text-align:right">Konstan</th><th style="text-align:right">CDI</th><th style="text-align:right">Ibovespa</th><th style="text-align:right">S&P500</th><th style="text-align:right">Cota Konstan</th><th style="text-align:right">Cota CDI</th><th style="text-align:right">Cota Ibov</th><th style="text-align:right">Cota S&P</th></tr></thead><tbody>`;
   dp.forEach(p=>{
     const fR=v=>(v>=0?"+":"")+v.toFixed(2)+"%";const clr=v=>v>=0?"var(--grn)":"var(--red)";
