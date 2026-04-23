@@ -9,7 +9,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--ac:#56b3e8;--ac2:#8bc9f0;--bg:#080b14;--card:rgba(255,255,255,0.015);--bd:rgba(255,255,255,0.04);--grn:#22c55e;--red:#ef4444}
-body{background:var(--bg);color:#edf0f5;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+body{background:var(--bg);color:#C5C8CC;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
 .hidden{display:none!important}
 .header{padding:28px 28px 22px;background:linear-gradient(180deg,rgba(86,179,232,0.03) 0%,transparent 100%);border-bottom:1px solid var(--bd)}
 .header-inner{display:flex;align-items:center;gap:12px}
@@ -30,9 +30,9 @@ body{background:var(--bg);color:#edf0f5;font-family:'Segoe UI',system-ui,sans-se
 .kpi{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;transition:all 0.3s}
 .kpi:hover{background:rgba(86,179,232,0.04);border-color:rgba(86,179,232,0.15)}
 .kpi-label{font-size:10px;color:#505a6b;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:6px;font-weight:600}
-.kpi-value{font-size:20px;font-weight:700;color:#edf0f5;font-family:monospace;letter-spacing:-0.5px}
+.kpi-value{font-size:20px;font-weight:700;color:#C5C8CC;font-family:monospace;letter-spacing:-0.5px}
 .filter-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.date-input{background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;color:#edf0f5;font-size:13px;font-family:monospace;outline:none;cursor:pointer;color-scheme:dark;min-width:150px}
+.date-input{background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;color:#C5C8CC;font-size:13px;font-family:monospace;outline:none;cursor:pointer;color-scheme:dark;min-width:150px}
 .date-input:focus{border-color:var(--ac)}
 .date-label{font-size:11px;color:#8a94a6;font-weight:600;margin-right:4px}
 .chart-box{background:var(--card);border-radius:16px;border:1px solid var(--bd);padding:20px 12px 12px}
@@ -43,7 +43,7 @@ body{background:var(--bg);color:#edf0f5;font-family:'Segoe UI',system-ui,sans-se
 .perf-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
 .perf-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 18px}
 .perf-card .label{font-size:10px;color:#505a6b;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:6px;font-weight:600}
-.perf-card .big{font-size:22px;font-weight:800;color:#edf0f5;font-family:monospace}
+.perf-card .big{font-size:22px;font-weight:800;color:#C5C8CC;font-family:monospace}
 .perf-card .small{font-size:11px;margin-top:5px;font-weight:500;font-family:monospace}
 .annual-grid{display:grid;gap:10px;margin-bottom:28px}
 .annual-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;text-align:center}
@@ -55,10 +55,10 @@ body{background:var(--bg);color:#edf0f5;font-family:'Segoe UI',system-ui,sans-se
 .part-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:4px}
 .totals-row{margin-top:16px;background:var(--card);border-radius:14px;border:1px solid var(--bd);padding:16px 20px;display:flex;justify-content:space-around;flex-wrap:wrap;gap:12px}
 .input-card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:24px;margin-bottom:16px}
-.input-card h3{margin:0;font-size:15px;font-weight:700;color:#edf0f5;display:inline}
+.input-card h3{margin:0;font-size:15px;font-weight:700;color:#C5C8CC;display:inline}
 .input-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px}
 .input-label{font-size:10px;color:#505a6b;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;font-weight:700;display:block}
-.input-field{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;color:#edf0f5;font-size:14px;font-family:monospace;outline:none;width:100%;margin-bottom:14px}
+.input-field{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;color:#C5C8CC;font-size:14px;font-family:monospace;outline:none;width:100%;margin-bottom:14px}
 .btn-cota{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#0c4a6e,#0369a1);color:var(--ac);font-size:13px;font-weight:700;cursor:pointer;font-family:monospace}
 .btn-aporte{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b0764,#5b21b6);color:#a78bfa;font-size:13px;font-weight:700;cursor:pointer;font-family:monospace}
 .log-box{margin-top:20px;background:var(--card);border-radius:14px;border:1px solid var(--bd);padding:18px}
@@ -67,47 +67,57 @@ body{background:var(--bg);color:#edf0f5;font-family:'Segoe UI',system-ui,sans-se
 .lock-screen{display:flex;align-items:center;justify-content:center;min-height:400px}
 .lock-box{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:40px 36px;width:320px;text-align:center}
 .lock-icon{width:56px;height:56px;border-radius:16px;background:rgba(86,179,232,0.07);border:1px solid rgba(86,179,232,0.13);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
-.login-input{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;color:#edf0f5;font-size:14px;font-family:monospace;outline:none;width:100%;text-align:center;margin-bottom:14px}
+.login-input{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;color:#C5C8CC;font-size:14px;font-family:monospace;outline:none;width:100%;text-align:center;margin-bottom:14px}
 .login-input.error{border-color:#ef4444}
 .login-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#0c4a6e,#0369a1);color:var(--ac);font-size:14px;font-weight:700;cursor:pointer;font-family:monospace}
 .err-msg{color:#ef4444;font-size:11px;font-family:monospace;margin:-8px 0 12px}
 .ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .ind-card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px}
-.ind-card h4{font-size:13px;color:#edf0f5;font-weight:700;margin:0 0 14px}
+.ind-card h4{font-size:13px;color:#C5C8CC;font-weight:700;margin:0 0 14px}
 .input-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;align-items:end}
 @media(max-width:700px){
-  .header{padding:16px 16px 14px}
-  .header h1{font-size:16px}
-  .header .sub{font-size:9px}
-  .tabs-wrap{padding:12px 16px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tabs{flex-wrap:nowrap;width:max-content}
-  .tab-btn{padding:7px 14px;font-size:11px;white-space:nowrap}
-  .content{padding:14px 16px 30px}
-  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-  .kpi{padding:12px 14px}
-  .kpi-label{font-size:9px;letter-spacing:1px;margin-bottom:4px}
-  .kpi-value{font-size:16px}
-  .filter-row{gap:6px}
-  .date-input{min-width:120px;padding:7px 10px;font-size:11px}
-  .date-label{font-size:10px}
-  .chart-box{padding:14px 8px 8px;border-radius:12px}
-  .toggle-row{gap:10px;margin-top:8px}
-  .toggle-item{font-size:10px}
-  .perf-cards{grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-  .perf-card{padding:12px 14px}
-  .perf-card .big{font-size:18px}
-  .perf-card .label{font-size:9px;letter-spacing:1px}
-  .perf-card .small{font-size:10px}
-  .annual-grid{margin-bottom:20px}
-  .annual-card{padding:12px 10px}
-  .ind-grid{grid-template-columns:1fr;gap:12px}
-  .ind-card{padding:14px 12px}
-  .ind-card h4{font-size:12px;margin-bottom:10px}
-  .data-table th{padding:8px 10px;font-size:9px}
-  .data-table td{padding:7px 10px;font-size:10px}
+  .header{padding:14px 14px 12px}
+  .header h1{font-size:15px}
+  .header .sub{font-size:8px}
+  .refresh-btn{width:34px;height:34px;border-radius:8px}
+  .tabs-wrap{padding:0;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--bg);border-top:1px solid var(--bd);overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tabs{width:100%;display:flex;border:none;border-radius:0;padding:0;gap:0;background:transparent}
+  .tab-btn{flex:1;padding:10px 0;font-size:10px;white-space:nowrap;border-radius:0;text-align:center;min-width:0}
+  .tab-btn.active{background:rgba(86,179,232,0.09);border-top:2px solid var(--ac)}
+  .content{padding:12px 12px 70px}
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+  .kpi{padding:10px 12px;border-radius:10px}
+  .kpi-label{font-size:8px;letter-spacing:0.8px;margin-bottom:3px}
+  .kpi-value{font-size:14px}
+  .filter-row{gap:5px}
+  .date-input{min-width:110px;padding:6px 8px;font-size:10px}
+  .date-label{font-size:9px}
+  .chart-box{padding:10px 6px 6px;border-radius:10px}
+  .toggle-row{gap:8px;margin-top:6px}
+  .toggle-item{font-size:9px;padding:4px 0}
+  .perf-cards{grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+  .perf-card{padding:10px 12px;border-radius:10px}
+  .perf-card .big{font-size:16px}
+  .perf-card .label{font-size:8px;letter-spacing:0.8px}
+  .perf-card .small{font-size:9px}
+  .annual-grid{margin-bottom:16px}
+  .annual-card{padding:10px 8px;border-radius:10px}
+  .annual-card div:first-child{font-size:11px!important}
+  .annual-card div:nth-child(2){font-size:18px!important}
+  .ind-grid{grid-template-columns:1fr;gap:10px}
+  .ind-card{padding:12px 10px;border-radius:12px}
+  .ind-card h4{font-size:11px;margin-bottom:8px}
+  .data-table{font-size:10px}
+  .data-table th{padding:6px 6px;font-size:8px;letter-spacing:0.5px}
+  .data-table td{padding:6px 6px;font-size:9px}
   .input-row{grid-template-columns:1fr 1fr}
-  .lock-box{width:280px;padding:30px 24px}
-  .totals-row{padding:12px 14px;gap:8px}
+  .lock-box{width:260px;padding:24px 20px}
+  .lock-box h3{font-size:14px!important}
+  .login-input{padding:10px 14px;font-size:12px}
+  .login-btn{padding:10px;font-size:12px}
+  .totals-row{padding:10px 10px;gap:6px;border-radius:10px}
+  .totals-row>div>div:last-child{font-size:13px!important}
+  .part-bar{width:30px}
 }
 </style>
 </head>
@@ -241,10 +251,10 @@ function renderCapa(){
     cotaChart=new Chart(ctx,{type:"line",data:{labels:filtered.map(d=>d.date),datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(filtered[items[0].dataIndex].date),label:c=>{const ret=((c.parsed.y-1)*100).toFixed(2);return c.dataset.label+": "+c.parsed.y.toFixed(6)+" ("+(ret>=0?"+":"")+ret+"%)"}}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:10,callback:function(v,i){const d=filtered[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{min:yMin,max:yMax,ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(2)},grid:{display:false}}}}})},50)}
 
 function renderPerformance(){const dp=calcDynPerf(),ar=calcAnnualReturns(dp);
-  let h=`<h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin-bottom:14px">Retornos Anuais</h3><div class="annual-grid" style="grid-template-columns:repeat(${ar.length},1fr)">`;
+  let h=`<h3 style="font-size:15px;color:#C5C8CC;font-weight:700;margin-bottom:14px">Retornos Anuais</h3><div class="annual-grid" style="grid-template-columns:repeat(${ar.length},1fr)">`;
   ar.forEach(a=>{h+=`<div class="annual-card"><div style="font-size:12px;color:#505a6b;font-weight:700;margin-bottom:8px">${a.year}</div><div style="font-size:22px;font-weight:800;font-family:monospace;color:${a.ret>=0?"var(--grn)":"var(--red)"}">${a.ret>=0?"+":""}${a.ret.toFixed(2)}%</div><div style="font-size:10px;color:#505a6b;margin-top:6px;font-family:monospace">Cota: ${a.cota.toFixed(6)}</div></div>`});
-  h+=`</div><h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin-bottom:14px">Retornos Mensais</h3><div class="chart-box"><div style="position:relative;height:340px"><canvas id="barChart"></canvas></div></div>`;
-  h+=`<h3 style="font-size:15px;color:#edf0f5;font-weight:700;margin:28px 0 12px">Cotas Mensais</h3><div style="background:var(--card);border-radius:14px;border:1px solid var(--bd);overflow:hidden"><div style="overflow-x:auto"><table class="data-table"><thead><tr><th style="text-align:left">Data</th><th style="text-align:right">Konstan</th><th style="text-align:right">CDI</th><th style="text-align:right">Ibovespa</th><th style="text-align:right">S&P500</th><th style="text-align:right">Cota Konstan</th><th style="text-align:right">Cota CDI</th><th style="text-align:right">Cota Ibov</th><th style="text-align:right">Cota S&P</th></tr></thead><tbody>`;
+  h+=`</div><h3 style="font-size:15px;color:#C5C8CC;font-weight:700;margin-bottom:14px">Retornos Mensais</h3><div class="chart-box"><div style="position:relative;height:340px"><canvas id="barChart"></canvas></div></div>`;
+  h+=`<h3 style="font-size:15px;color:#C5C8CC;font-weight:700;margin:28px 0 12px">Cotas Mensais</h3><div style="background:var(--card);border-radius:14px;border:1px solid var(--bd);overflow:hidden"><div style="overflow-x:auto"><table class="data-table"><thead><tr><th style="text-align:left">Data</th><th style="text-align:right">Konstan</th><th style="text-align:right">CDI</th><th style="text-align:right">Ibovespa</th><th style="text-align:right">S&P500</th><th style="text-align:right">Cota Konstan</th><th style="text-align:right">Cota CDI</th><th style="text-align:right">Cota Ibov</th><th style="text-align:right">Cota S&P</th></tr></thead><tbody>`;
   dp.forEach(p=>{
     const fR=v=>(v>=0?"+":"")+v.toFixed(2)+"%";const clr=v=>v>=0?"var(--grn)":"var(--red)";
     h+=`<tr><td style="color:#c9d1d9">${fullMonth(p.m)}</td><td style="text-align:right;color:${clr(p.rk)};font-weight:600">${fR(p.rk)}</td><td style="text-align:right;color:${clr(p.rc)};font-weight:600">${fR(p.rc)}</td><td style="text-align:right;color:${clr(p.ri)};font-weight:600">${fR(p.ri)}</td><td style="text-align:right;color:${clr(p.rs)};font-weight:600">${fR(p.rs)}</td><td style="text-align:right;color:#8a94a6">${p.ck.toFixed(6)}</td><td style="text-align:right;color:#8a94a6">${p.cc.toFixed(6)}</td><td style="text-align:right;color:#8a94a6">${p.ci.toFixed(6)}</td><td style="text-align:right;color:#8a94a6">${p.cs.toFixed(6)}</td></tr>`});
@@ -288,7 +298,7 @@ function renderIndicadores(){
         {label:"Konstan",data:sK,borderColor:"#56b3e8",borderWidth:2,pointRadius:0,tension:0.3},
         {label:"Ibovespa",data:sI,borderColor:"#f87171",borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[4,2]},
         {label:"S&P500",data:sS,borderColor:"#a78bfa",borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[4,2]}
-      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{label:c=>c.dataset.label+": "+(c.parsed.y!==null?c.parsed.y.toFixed(3):"—")}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(1)},grid:{color:"rgba(255,255,255,0.03)"}}}}})
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{label:c=>c.dataset.label+": "+(c.parsed.y!==null?c.parsed.y.toFixed(3):"—")}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(1)},grid:{display:false}}}}})
     }
 
     // --- DRAWDOWN ---
@@ -304,7 +314,7 @@ function renderIndicadores(){
         {label:"Konstan",data:ddK,borderColor:"#56b3e8",backgroundColor:"rgba(86,179,232,0.06)",fill:true,pointRadius:0,tension:0.3,borderWidth:2},
         {label:"Ibovespa",data:ddI,borderColor:"#f87171",fill:false,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]},
         {label:"S&P500 (BRL)",data:ddS,borderColor:"#a78bfa",fill:false,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
-      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(rawData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+c.parsed.y.toFixed(2)+"%"}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8,callback:function(v,i){const d=rawData[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(0)+"%"},grid:{color:"rgba(255,255,255,0.03)"}}}}})
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(rawData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+c.parsed.y.toFixed(2)+"%"}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8,callback:function(v,i){const d=rawData[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(0)+"%"},grid:{display:false}}}}})
     }
 
     // --- DAILY RETURNS (used by Risk x Return and Volatility) ---
@@ -323,15 +333,29 @@ function renderIndicadores(){
     if(ctx5){if(riskRetChart)riskRetChart.destroy();
       // SML: 45° line starting from CDI (risk-free), slope=1
       const allVols=[volK_full,volC_full,volI_full,volS_full];
-      const smlMaxX=Math.max(...allVols)*1.6;
+      const smlMaxX=Math.max(...allVols)*1.1;
       const smlPoints=[{x:0,y:annRetC},{x:smlMaxX,y:annRetC+smlMaxX}];
-      riskRetChart=new Chart(ctx5,{type:"scatter",data:{datasets:[
-        {label:"SML",data:smlPoints,type:"line",borderColor:"rgba(255,255,255,0.3)",borderWidth:1,borderDash:[6,4],pointRadius:0,fill:false,tension:0},
-        {label:"Konstan",data:[{x:volK_full,y:annRetK}],backgroundColor:"#56b3e8",borderColor:"#56b3e8",pointRadius:5,pointHoverRadius:7},
-        {label:"CDI",data:[{x:volC_full,y:annRetC}],backgroundColor:"#fbbf24",borderColor:"#fbbf24",pointRadius:5,pointHoverRadius:7},
-        {label:"Ibovespa",data:[{x:volI_full,y:annRetI}],backgroundColor:"#f87171",borderColor:"#f87171",pointRadius:5,pointHoverRadius:7},
-        {label:"S&P500 (BRL)",data:[{x:volS_full,y:annRetS}],backgroundColor:"#a78bfa",borderColor:"#a78bfa",pointRadius:5,pointHoverRadius:7}
-      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12,filter:item=>item.text!=="SML"}},tooltip:{filter:item=>item.dataset.label!=="SML",callbacks:{label:c=>c.dataset.label+": Vol "+c.parsed.x.toFixed(1)+"% | Ret "+c.parsed.y.toFixed(1)+"%"}}},scales:{x:{min:0,title:{display:true,text:"Volatilidade (%)",color:"#505a6b",font:{size:10,family:"monospace"}},ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(0)+"%"},grid:{color:"rgba(255,255,255,0.03)"}},y:{min:0,title:{display:true,text:"Retorno Anualizado (%)",color:"#505a6b",font:{size:10,family:"monospace"}},ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(0)+"%"},grid:{color:"rgba(255,255,255,0.03)"}}}}})
+      riskRetChart=new Chart(ctx5,{
+        type:"scatter",
+        data:{datasets:[
+          {label:"SML",data:smlPoints,type:"line",borderColor:"rgba(255,255,255,0.35)",borderWidth:1,borderDash:[6,4],pointRadius:0,fill:false,tension:0},
+          {label:"Konstan",data:[{x:volK_full,y:annRetK}],backgroundColor:"#56b3e8",borderColor:"#56b3e8",pointRadius:5,pointHoverRadius:7},
+          {label:"CDI",data:[{x:volC_full,y:annRetC}],backgroundColor:"#fbbf24",borderColor:"#fbbf24",pointRadius:5,pointHoverRadius:7},
+          {label:"Ibovespa",data:[{x:volI_full,y:annRetI}],backgroundColor:"#f87171",borderColor:"#f87171",pointRadius:5,pointHoverRadius:7},
+          {label:"S&P500 (BRL)",data:[{x:volS_full,y:annRetS}],backgroundColor:"#a78bfa",borderColor:"#a78bfa",pointRadius:5,pointHoverRadius:7}
+        ]},
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          plugins:{
+            legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12,filter:item=>item.text!=="SML"}},
+            tooltip:{filter:item=>item.dataset.label!=="SML",callbacks:{label:c=>c.dataset.label+": Vol "+c.parsed.x.toFixed(1)+"% | Ret "+c.parsed.y.toFixed(1)+"%"}}
+          },
+          scales:{
+            x:{min:0,title:{display:true,text:"Volatilidade (%)",color:"#505a6b",font:{size:10,family:"monospace"}},ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(0)+"%"},grid:{display:false}},
+            y:{min:0,title:{display:true,text:"Retorno Anualizado (%)",color:"#505a6b",font:{size:10,family:"monospace"}},ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(0)+"%"},grid:{display:false}}
+          }
+        }
+      })
     }
 
     // --- VaR HISTÓRICO 95% (rolling 252 dias) ---
@@ -356,7 +380,7 @@ function renderIndicadores(){
         {label:"Konstan",data:varK,borderColor:"#56b3e8",backgroundColor:"rgba(86,179,232,0.15)",fill:"origin",borderWidth:1,pointRadius:0,tension:0.3},
         {label:"Ibovespa",data:varI,borderColor:"#f87171",fill:false,borderWidth:1,pointRadius:0,tension:0.3},
         {label:"S&P500",data:varS,borderColor:"#a78bfa",fill:false,borderWidth:1,pointRadius:0,tension:0.3}
-      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>{const i=items[0].dataIndex;return fD(varDates[i])},label:c=>c.dataset.label+": "+(c.parsed.y!==null?c.parsed.y.toFixed(2)+"%":"—")}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8,callback:function(v,i){if(!varDates[i])return"";const[y,m]=varDates[i].split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(1)+"%"},grid:{color:"rgba(255,255,255,0.03)"}}}}})
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>{const i=items[0].dataIndex;return fD(varDates[i])},label:c=>c.dataset.label+": "+(c.parsed.y!==null?c.parsed.y.toFixed(2)+"%":"—")}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8,callback:function(v,i){if(!varDates[i])return"";const[y,m]=varDates[i].split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>v.toFixed(1)+"%"},grid:{display:false}}}}})
     }
 
     // --- PL + APORTES + RESULTADO ACUMULADO (weekly) ---
@@ -367,7 +391,7 @@ function renderIndicadores(){
       plChart=new Chart(ctx3,{type:"line",data:{labels:plLabels,datasets:[
         {label:"Patrimônio Líquido",data:weeklyData.map(d=>d.q*d.k),borderColor:"#56b3e8",backgroundColor:"rgba(86,179,232,0.08)",fill:true,pointRadius:0,tension:0.3,borderWidth:2},
         {label:"Aportes Acumulados",data:weeklyData.map(d=>d.a),borderColor:"#fbbf24",fill:false,pointRadius:0,tension:0,borderWidth:1.5,borderDash:[6,3]}
-      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(weeklyData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+fBRL(c.parsed.y)}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>"R$ "+(v/1000).toFixed(0)+"k"},grid:{color:"rgba(255,255,255,0.03)"}}}}})
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(weeklyData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+fBRL(c.parsed.y)}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>"R$ "+(v/1000).toFixed(0)+"k"},grid:{display:false}}}}})
     }
 
     // --- EXCESS RETURN vs IBOVESPA & CDI (weekly line chart) ---
@@ -379,17 +403,17 @@ function renderIndicadores(){
       excessChart=new Chart(ctx4,{type:"line",data:{labels:exLabels,datasets:[
         {label:"vs Ibovespa",data:exVsIbov,borderColor:"#f87171",backgroundColor:"rgba(248,113,113,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:2},
         {label:"vs CDI",data:exVsCDI,borderColor:"#fbbf24",backgroundColor:"rgba(251,191,36,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
-      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(weeklyData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+fBRL(c.parsed.y)}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>"R$"+(Math.abs(v)>=1000000?(v/1000000).toFixed(1)+"M":(v/1000).toFixed(0)+"k")},grid:{color:"rgba(255,255,255,0.03)"}}}}})
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:{color:"#8a94a6",font:{size:10,family:"monospace"},boxWidth:12}},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(weeklyData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+fBRL(c.parsed.y)}}},scales:{x:{ticks:{color:"#3b4252",font:{size:8,family:"monospace"},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:"#3b4252",font:{size:9,family:"monospace"},callback:v=>"R$"+(Math.abs(v)>=1000000?(v/1000000).toFixed(1)+"M":(v/1000).toFixed(0)+"k")},grid:{display:false}}}}})
     }
   },100);
 }
 
 function renderCotistas(){
-  if(!investidoresUnlocked){document.getElementById("tab-cotistas").innerHTML=`<div class="lock-screen"><div class="lock-box"><div class="lock-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#56b3e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg></div><h3 style="margin:0 0 6px;font-size:16px;font-weight:700;color:#edf0f5">Área restrita</h3><p style="margin:0 0 20px;font-size:12px;color:#505a6b">Digite a senha para acessar.</p><input type="password" id="investPw" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:14px" placeholder="Senha" onkeydown="if(event.key==='Enter')unlockInvest()"><p id="investErr" class="err-msg hidden">Senha incorreta</p><button class="login-btn" style="font-size:13px;padding:12px" onclick="unlockInvest()">DESBLOQUEAR</button></div></div>`;return}
+  if(!investidoresUnlocked){document.getElementById("tab-cotistas").innerHTML=`<div class="lock-screen"><div class="lock-box"><div class="lock-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#56b3e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg></div><h3 style="margin:0 0 6px;font-size:16px;font-weight:700;color:#C5C8CC">Área restrita</h3><p style="margin:0 0 20px;font-size:12px;color:#505a6b">Digite a senha para acessar.</p><input type="password" id="investPw" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:14px" placeholder="Senha" onkeydown="if(event.key==='Enter')unlockInvest()"><p id="investErr" class="err-msg hidden">Senha incorreta</p><button class="login-btn" style="font-size:13px;padding:12px" onclick="unlockInvest()">DESBLOQUEAR</button></div></div>`;return}
   const cur=getCota(),tc=getTotalCotas(),pl=tc*cur,ta=getTotalAportes();
-  let h=`<div style="background:var(--card);border-radius:16px;border:1px solid var(--bd);overflow:hidden"><table class="data-table"><thead><tr><th style="text-align:left">Conta</th><th style="text-align:right">Aportes</th><th style="text-align:right">PL Atual</th><th style="text-align:right">Lucro Bruto</th><th style="text-align:right">Imposto de Renda</th><th style="text-align:right">Lucro Líquido</th><th style="text-align:right">Part. %</th></tr></thead><tbody>`;
-  cotistas.forEach(c=>{const cpl=c.cotas*cur,lb=cpl-c.aportes,ir=lb>0?lb*0.15:0,ll=lb-ir,pct=cpl/pl;h+=`<tr><td style="font-weight:600;font-size:13px;color:#edf0f5">${c.conta}</td><td style="text-align:right;color:#c9d1d9;font-weight:600">${fBRL(c.aportes)}</td><td style="text-align:right;color:var(--ac);font-weight:700">${fBRL(cpl)}</td><td style="text-align:right;color:#edf0f5;font-weight:600">${fBRL(lb)}</td><td style="text-align:right;color:#edf0f5;font-weight:600">${fBRL(ir)}</td><td style="text-align:right;color:#edf0f5;font-weight:600">${fBRL(ll)}</td><td style="text-align:right"><span style="color:#8a94a6;font-weight:600">${(pct*100).toFixed(1)}%</span><div class="part-bar"><div class="part-fill" style="width:${pct*100}%"></div></div></td></tr>`});
-  h+=`</tbody></table></div><div class="totals-row"><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Total Aportes</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:#edf0f5">${fBRL(ta)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">PL Total</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--ac)">${fBRL(pl)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Lucro Líq. Total</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--grn)">${fBRL((pl-ta)*0.85)}</div></div></div>`;
+  let h=`<div style="background:var(--card);border-radius:16px;border:1px solid var(--bd);overflow:hidden"><table class="data-table"><thead><tr><th style="text-align:left">Conta</th><th style="text-align:right">MOIC</th><th style="text-align:right">Aportes</th><th style="text-align:right">PL Atual</th><th style="text-align:right">Lucro Bruto</th><th style="text-align:right">Imposto de Renda</th><th style="text-align:right">Lucro Líquido</th><th style="text-align:right">Part. %</th></tr></thead><tbody>`;
+  cotistas.forEach(c=>{const cpl=c.cotas*cur,lb=cpl-c.aportes,ir=lb>0?lb*0.15:0,ll=lb-ir,pct=cpl/pl,moic=cpl/c.aportes;h+=`<tr><td style="font-weight:600;font-size:13px;color:#C5C8CC">${c.conta}</td><td style="text-align:right;color:#C5C8CC;font-weight:700">${moic.toFixed(2)}x</td><td style="text-align:right;color:#c9d1d9;font-weight:600">${fBRL(c.aportes)}</td><td style="text-align:right;color:var(--ac);font-weight:700">${fBRL(cpl)}</td><td style="text-align:right;color:#C5C8CC;font-weight:600">${fBRL(lb)}</td><td style="text-align:right;color:#C5C8CC;font-weight:600">${fBRL(ir)}</td><td style="text-align:right;color:var(--grn);font-weight:600">${fBRL(ll)}</td><td style="text-align:right"><span style="color:#8a94a6;font-weight:600">${(pct*100).toFixed(1)}%</span><div class="part-bar"><div class="part-fill" style="width:${pct*100}%"></div></div></td></tr>`});
+  h+=`</tbody></table></div><div class="totals-row"><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">MOIC</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:#C5C8CC">${(pl/ta).toFixed(2)}x</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Total Aportes</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:#C5C8CC">${fBRL(ta)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">PL Total</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--ac)">${fBRL(pl)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Lucro Líq. Total</div><div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--grn)">${fBRL((pl-ta)*0.85)}</div></div></div>`;
   document.getElementById("tab-cotistas").innerHTML=h}
 function unlockInvest(){if(document.getElementById("investPw").value==="Am@relo898989"){investidoresUnlocked=true;renderCotistas()}else{document.getElementById("investErr").classList.remove("hidden");document.getElementById("investPw").classList.add("error");document.getElementById("investPw").value=""}}
 
