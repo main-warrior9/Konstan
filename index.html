@@ -81,7 +81,7 @@ body{background:var(--bg);color:#C5C8CC;font-family:'Segoe UI',system-ui,sans-se
 .report-checks{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .report-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-family:monospace;color:#8a94a6;padding:8px 12px;border-radius:8px;border:1px solid var(--bd);transition:all 0.2s;user-select:none}
 .report-check:hover{border-color:rgba(86,179,232,0.3);color:#C5C8CC}
-.report-check.checked{border-color:var(--ac);background:rgba(86,179,232,0.08);color:var(--ac)}
+.report-check.checked{border-color:var(--bd);background:transparent;color:#8a94a6}
 .report-check .check-box{width:14px;height:14px;border-radius:4px;border:1.5px solid #505a6b;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
 .report-check.checked .check-box{border-color:var(--ac);background:var(--ac)}
 .report-textarea{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:#C5C8CC;font-size:13px;font-family:'Segoe UI',system-ui,sans-serif;outline:none;width:100%;min-height:80px;resize:vertical}
@@ -453,7 +453,6 @@ function toggleReport(key){
 function renderRelatorio(){
   const last=getLast(),cur=last.k,tc=getTotalCotas(),ta=getTotalAportes(),pl=tc*cur;
   let h=`<div class="report-config">`;
-  h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><h3 style="font-size:17px;font-weight:700;color:#C5C8CC;margin:0">Exportar Relatório</h3></div>`;
 
   // Title
   h+=`<div class="report-section"><h4>Título do Relatório</h4><input type="text" id="reportTitle" class="report-textarea" style="min-height:auto;font-family:monospace" value="${reportTitle}" onchange="reportTitle=this.value"></div>`;
@@ -483,7 +482,6 @@ function renderRelatorio(){
   h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">`;
   selected.forEach(s=>{h+=`<span style="background:rgba(86,179,232,0.1);color:var(--ac);padding:4px 10px;border-radius:6px;font-size:11px;font-family:monospace">${s}</span>`});
   h+=`</div>`;
-  h+=`<div style="font-size:11px;color:#505a6b;font-family:monospace">Data base: ${fD(last.date)} · Cota: ${cur.toFixed(6)} · PL: ${fBRL(pl)}</div>`;
   h+=`</div></div>`;
 
   // Export button
