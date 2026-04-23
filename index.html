@@ -351,7 +351,7 @@ function renderIndicadores(){
       // SML: 45° line starting from CDI (risk-free), slope=1
       const allVols=[volK_full,volC_full,volI_full,volS_full];
       const smlMaxX=Math.max(...allVols)*1.1;
-      const smlPoints=[{x:0,y:annRetC},{x:smlMaxX,y:annRetC+smlMaxX}, {"d": "2026-04-22", "k": 2.488574, "c": 1.3976, "i": 1.6354, "s": 1.6732, "q": 1199512.32, "a": 1365000}];
+      const smlPoints=[{x:0,y:annRetC},{x:smlMaxX,y:annRetC+smlMaxX}];
       riskRetChart=new Chart(ctx5,{
         type:"scatter",
         data:{datasets:[
