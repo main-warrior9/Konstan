@@ -519,6 +519,13 @@ function exportPDF(){
   reportComment=document.getElementById("reportComment")?.value||"";
   reportTitle=document.getElementById("reportTitle")?.value||reportTitle;
 
+  // Pede senha sempre que a seção Investidores estiver marcada
+  if(reportSections.investidores){
+    const pw=prompt("Digite a senha para exportar o relatório com a seção Investidores:");
+    if(pw===null)return;
+    if(pw!=="Am@relo898989"){alert("Senha incorreta. Exportação cancelada.");return}
+  }
+
   // Container oculto para charts temporários
   const tmpDiv=document.createElement("div");
   tmpDiv.style.cssText="position:absolute;left:-9999px;top:0;width:700px;";
