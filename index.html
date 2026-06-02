@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='36' height='36' rx='8' fill='%23080b14'/%3E%3Crect x='2' y='2' width='36' height='36' rx='8' fill='%2356b3e8' opacity='0.15'/%3E%3Cline x1='10' y1='30' x2='10' y2='14' stroke='%2356b3e8' stroke-width='2' opacity='0.5'/%3E%3Crect x='8' y='18' width='4' height='8' rx='0.5' fill='%2322c55e'/%3E%3Cline x1='17' y1='30' x2='17' y2='10' stroke='%2356b3e8' stroke-width='2' opacity='0.5'/%3E%3Crect x='15' y='10' width='4' height='10' rx='0.5' fill='%23ef4444'/%3E%3Cline x1='24' y1='30' x2='24' y2='8' stroke='%2356b3e8' stroke-width='2' opacity='0.5'/%3E%3Crect x='22' y='12' width='4' height='12' rx='0.5' fill='%2322c55e'/%3E%3Cline x1='31' y1='30' x2='31' y2='6' stroke='%2356b3e8' stroke-width='2' opacity='0.5'/%3E%3Crect x='29' y='6' width='4' height='14' rx='0.5' fill='%2322c55e'/%3E%3Cline x1='6' y1='32' x2='34' y2='32' stroke='%2356b3e8' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -232,103 +233,110 @@ html{scrollbar-color:rgba(86,179,232,0.25) transparent;scrollbar-width:thin}
   </div>
 </div>
 <script>
-/* ============================================================
-   FONTE DE DADOS — Google Sheets "Konstan_Data" (aba ALLDATA)
-   ------------------------------------------------------------
-   1) No Google Sheets: Arquivo > Compartilhar > Publicar na web
-      > escolha a aba "ALLDATA" > formato CSV > Publicar.
-   2) Copie o link gerado e cole entre as aspas abaixo.
-   A planilha precisa ter as colunas: data, k, c, i, s, q, a
-   (uma linha por dia — basta acrescentar a linha do dia).
-   ============================================================ */
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQmoECZzyenshOyH6iACvI3egK0yocFQDH6JqFUzs6JjblT8pXx1je2X3rAndwIb6ncPNYmcPQkxnlg/pub?gid=1283208267&single=true&output=csv";
+// ============================================
+// AUTENTICAÇÃO DA ÁREA RESTRITA (Investidores) — Supabase Auth
+// ============================================
+const SUPABASE_URL = 'https://nozcewgtveidrlksbpdk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vemNld2d0dmVpZHJsa3NicGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MTY1MzUsImV4cCI6MjA5NTk5MjUzNX0.kvIi9aKRTu6-bHlRqY1dbIfrCmydshE3miXu1q9VHYw';
+let sbAuth = null;
+try {
+  if (window.supabase) sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (e) { console.error('Falha ao iniciar Supabase:', e); }
 
-let ALLDATA = [];
-
-// CSV -> matriz, respeitando aspas e vírgulas dentro de campos
-function parseCSV(text){
-  const rows=[]; let row=[], cur="", q=false;
-  for(let i=0;i<text.length;i++){
-    const ch=text[i];
-    if(q){
-      if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
-      else cur+=ch;
-    } else {
-      if(ch==='"') q=true;
-      else if(ch===',') { row.push(cur); cur=""; }
-      else if(ch==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
-      else if(ch!=='\r') cur+=ch;
-    }
-  }
-  if(cur!=="" || row.length){ row.push(cur); rows.push(row); }
-  return rows;
-}
-
-// Converte data em qualquer formato comum para ISO AAAA-MM-DD
-function toISODate(v){
-  v=(v==null?"":v).toString().trim();
-  if(/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0,10);
-  const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);            // DD/MM/AAAA (pt-BR)
-  if(m){ let[,d,mo,y]=m; if(y.length===2)y="20"+y; return y+"-"+mo.padStart(2,"0")+"-"+d.padStart(2,"0"); }
-  const dt=new Date(v); if(!isNaN(dt)) return dt.toISOString().slice(0,10);
-  return v;
-}
-
-// Número tolerante a vírgula decimal (pt-BR) e ponto (en)
-function num(v){
-  v=(v==null?"":v).toString().trim();
-  if(v==="") return NaN;
-  if(v.indexOf(",")>-1){ v=v.replace(/\./g,"").replace(",","."); }
-  return parseFloat(v);
-}
-
-function rowsToData(rows){
-  rows=rows.filter(r=>r.length>1);
-  if(!rows.length) return [];
-  const head=rows[0].map(h=>h.trim().toLowerCase());
-  const col=n=>head.indexOf(n);
-  const cD=col("data"),cK=col("k"),cC=col("c"),cI=col("i"),cS=col("s"),cQ=col("q"),cA=col("a");
-  const out=[];
-  for(let r=1;r<rows.length;r++){
-    const row=rows[r]; if(!row||row[cD]==null||row[cD]==="") continue;
-    const d=toISODate(row[cD]); const k=num(row[cK]);
-    if(!d||isNaN(k)) continue;
-    out.push({d,k,c:num(row[cC]),i:num(row[cI]),s:num(row[cS]),q:num(row[cQ]),a:num(row[cA])});
-  }
-  out.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
-  return out;
-}
-
-function showLoadError(msg){
-  const el=document.getElementById("tab-capa");
-  if(el) el.innerHTML='<div style="padding:56px 24px;text-align:center">'
-    +'<div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:8px">Não foi possível carregar os dados</div>'
-    +'<div style="font-size:12px;color:var(--tx3);font-family:\'JetBrains Mono\',monospace;margin-bottom:14px">'+msg+'</div>'
-    +'<div style="font-size:12px;color:var(--tx3)">Verifique se a planilha está publicada como CSV e se o link em SHEET_CSV_URL está correto.</div></div>';
-}
-
-async function loadData(){
-  if(!SHEET_CSV_URL || SHEET_CSV_URL.indexOf("COLE_AQUI")>-1){
-    showLoadError("Link da planilha ainda não configurado.");
-    return false;
-  }
+// Verifica sessão existente ao carregar a página (persistência do login)
+async function checkInvestSession(){
+  if(!sbAuth) return;
   try{
-    const resp=await fetch(SHEET_CSV_URL,{cache:"no-store"});
-    if(!resp.ok) throw new Error("HTTP "+resp.status);
-    const data=rowsToData(parseCSV(await resp.text()));
-    if(!data.length) throw new Error("Nenhuma linha de dados reconhecida.");
-    ALLDATA=data;
-    rawData=ALLDATA.map(r=>({date:r.d,k:r.k,c:r.c,i:r.i,s:r.s,q:r.q,a:r.a}));
-    return true;
-  }catch(e){ showLoadError(e.message||"falha ao buscar a planilha"); return false; }
+    const { data:{ session } } = await sbAuth.auth.getSession();
+    if(session){
+      investidoresUnlocked = true;
+      if(currentTab === 'cotistas') renderCotistas();
+    }
+  }catch(e){ /* sem sessão: segue bloqueado */ }
 }
 
+// Login na área restrita
+async function unlockInvest(){
+  const emailEl = document.getElementById("investEmail");
+  const pwEl    = document.getElementById("investPw");
+  const errEl   = document.getElementById("investErr");
+  const btn     = document.getElementById("investBtn");
+  if(!sbAuth){
+    if(errEl){ errEl.textContent = "Autenticação indisponível. Recarregue a página."; errEl.classList.remove("hidden"); }
+    return;
+  }
+  const email    = (emailEl?.value || "").trim();
+  const password = pwEl?.value || "";
+  if(errEl) errEl.classList.add("hidden");
+  if(pwEl)  pwEl.classList.remove("error");
+  if(!email || !password){
+    if(errEl){ errEl.textContent = "Informe e-mail e senha"; errEl.classList.remove("hidden"); }
+    return;
+  }
+  if(btn){ btn.disabled = true; btn.textContent = "VERIFICANDO..."; }
+  try{
+    const { error } = await sbAuth.auth.signInWithPassword({ email, password });
+    if(error) throw error;
+    investidoresUnlocked = true;
+    renderCotistas();
+  }catch(err){
+    if(errEl){ errEl.textContent = "E-mail ou senha incorretos"; errEl.classList.remove("hidden"); }
+    if(pwEl){ pwEl.classList.add("error"); pwEl.value = ""; }
+    if(btn){ btn.disabled = false; btn.textContent = "ENTRAR"; }
+  }
+}
+
+// Logout: bloqueia a área restrita novamente
+async function signOutInvest(){
+  if(sbAuth){ try{ await sbAuth.auth.signOut(); }catch(e){} }
+  investidoresUnlocked = false;
+  reportSections.investidores = false;
+  if(currentTab === 'cotistas') renderCotistas();
+}
+
+// ============================================
+// FONTE DE DADOS (ALLDATA) — arquivo no Supabase Storage
+// ============================================
+const DATA_BUCKET = 'dados';          // nome do bucket no Supabase Storage
+const DATA_FILE   = 'alldata.json';   // nome do arquivo dentro do bucket
+const DATA_URL    = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${DATA_FILE}`;
+
+// Busca o arquivo de dados e preenche ALLDATA / rawData
+async function loadData(){
+  const res = await fetch(DATA_URL, { cache: 'no-store' });
+  if(!res.ok) throw new Error('HTTP ' + res.status + ' ao buscar ' + DATA_FILE);
+  const json = await res.json();
+  if(!Array.isArray(json) || json.length === 0) throw new Error('Arquivo vazio ou em formato inválido');
+  ALLDATA = json;
+  rawData = ALLDATA.map(r=>({date:r.d,k:r.k,c:r.c,i:r.i,s:r.s,q:r.q,a:r.a}));
+}
+
+// Inicialização do painel: carrega os dados antes de renderizar
+async function bootDashboard(){
+  const content = document.querySelector('.content');
+  try{
+    await loadData();
+    showTab('capa');
+    checkInvestSession();
+  }catch(err){
+    if(content){
+      content.innerHTML = `<div style="max-width:520px;margin:60px auto;text-align:center;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:32px">
+        <h3 style="color:#C5C8CC;font-size:16px;margin:0 0 10px;font-family:'Inter',system-ui,sans-serif">Não foi possível carregar os dados</h3>
+        <p style="color:var(--tx3);font-size:13px;margin:0 0 8px;font-family:'Inter',system-ui,sans-serif">Verifique se o arquivo <code>${DATA_FILE}</code> existe no bucket <code>${DATA_BUCKET}</code> do Supabase Storage e se o bucket está público.</p>
+        <p style="color:var(--tx4);font-size:11px;margin:0;font-family:'JetBrains Mono',monospace">${(err && err.message) ? err.message : err}</p>
+      </div>`;
+    }
+    console.error('Falha ao carregar dados:', err);
+  }
+}
+
+let ALLDATA=[];
 
 const MN=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MN_SHORT=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 let rawData=[];
 let cotistas=[{conta:"6704186",cotas:415825.222760,aportes:482000},{conta:"6702957",cotas:394826.222660,aportes:455000},{conta:"6702965",cotas:218306.878778,aportes:247000},{conta:"6703449",cotas:171110.669073,aportes:181000}];
-let currentTab="capa",cotaChart=null,barChart=null,sharpeChart=null,ddChart=null,plChart=null,excessChart=null,riskRetChart=null,varChart=null,investidoresUnlocked=true;
+let currentTab="capa",cotaChart=null,barChart=null,sharpeChart=null,ddChart=null,plChart=null,excessChart=null,riskRetChart=null,varChart=null,investidoresUnlocked=false;
 let showCDI=true,showIbov=true,showSP=true;
 let dateFrom="",dateTo="";
 
@@ -448,7 +456,7 @@ function tabKey(e){
   if(n!==null){e.preventDefault();showTab(TABS[n]);document.getElementById("tabbtn-"+TABS[n]).focus()}
 }
 
-async function doRefresh(){const b=document.querySelector(".refresh-btn");b.classList.add("spinning");const ok=await loadData();rendered.clear();if(ok)renderTab(currentTab);setTimeout(()=>b.classList.remove("spinning"),800)}
+function doRefresh(){const b=document.querySelector(".refresh-btn");b.classList.add("spinning");setTimeout(()=>b.classList.remove("spinning"),800);loadData().then(()=>renderTab(currentTab)).catch(e=>console.error('Falha ao atualizar dados:',e))}
 function applyDateFilter(){dateFrom=document.getElementById("dfrom")?.value||"";dateTo=document.getElementById("dto")?.value||"";renderCapa()}
 function toggleLine(w){if(w==="cdi")showCDI=!showCDI;if(w==="ibov")showIbov=!showIbov;if(w==="sp")showSP=!showSP;renderCapa()}
 
@@ -687,13 +695,12 @@ function renderIndicadores(){
 }
 
 function renderCotistas(){
-  if(!investidoresUnlocked){document.getElementById("tab-cotistas").innerHTML=`<div class="lock-screen"><div class="lock-box"><div class="lock-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#56b3e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg></div><h3 style="margin:0 0 6px;font-size:16px;font-weight:700;color:#C5C8CC;font-family:'Inter',system-ui,sans-serif;letter-spacing:1px;text-transform:uppercase">Área restrita</h3><p style="margin:0 0 20px;font-size:12px;color:#505a6b;font-family:'Inter',system-ui,sans-serif">Digite a senha para acessar.</p><input type="password" id="investPw" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:14px" placeholder="Senha" onkeydown="if(event.key==='Enter')unlockInvest()"><p id="investErr" class="err-msg hidden">Senha incorreta</p><button class="login-btn" style="font-size:13px;padding:12px" onclick="unlockInvest()">DESBLOQUEAR</button></div></div>`;return}
+  if(!investidoresUnlocked){document.getElementById("tab-cotistas").innerHTML=`<div class="lock-screen"><div class="lock-box"><div class="lock-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#56b3e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg></div><h3 style="margin:0 0 6px;font-size:16px;font-weight:700;color:#C5C8CC;font-family:'Inter',system-ui,sans-serif;letter-spacing:1px;text-transform:uppercase">Área restrita</h3><p style="margin:0 0 20px;font-size:12px;color:#505a6b;font-family:'Inter',system-ui,sans-serif">Entre com seu e-mail e senha para acessar.</p><input type="email" id="investEmail" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:12px;letter-spacing:0" placeholder="E-mail" autocomplete="email" onkeydown="if(event.key==='Enter')unlockInvest()"><input type="password" id="investPw" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:14px" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockInvest()"><p id="investErr" class="err-msg hidden">E-mail ou senha incorretos</p><button id="investBtn" class="login-btn" style="font-size:13px;padding:12px" onclick="unlockInvest()">ENTRAR</button></div></div>`;return}
   const cur=getCota(),tc=getTotalCotas(),pl=tc*cur,ta=getTotalAportes();
-  let h=`<h3 class="section-title">Posição dos Investidores</h3><div style="background:var(--card);border-radius:16px;border:1px solid var(--bd);overflow:hidden"><table class="data-table"><thead><tr><th style="text-align:left">Conta</th><th style="text-align:right">MOIC</th><th style="text-align:right">Aportes</th><th style="text-align:right">PL Atual</th><th style="text-align:right">Lucro Bruto</th><th style="text-align:right">Imposto de Renda</th><th style="text-align:right">Lucro Líquido</th><th style="text-align:right">Part. %</th></tr></thead><tbody>`;
+  let h=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3 class="section-title" style="margin:0">Posição dos Investidores</h3><button onclick="signOutInvest()" style="display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--bd);color:var(--tx3);font-size:11px;font-weight:600;font-family:'Inter',system-ui,sans-serif;letter-spacing:0.5px;padding:8px 12px;border-radius:8px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Bloquear</button></div><div style="margin-top:14px;background:var(--card);border-radius:16px;border:1px solid var(--bd);overflow:hidden"><table class="data-table"><thead><tr><th style="text-align:left">Conta</th><th style="text-align:right">MOIC</th><th style="text-align:right">Aportes</th><th style="text-align:right">PL Atual</th><th style="text-align:right">Lucro Bruto</th><th style="text-align:right">Imposto de Renda</th><th style="text-align:right">Lucro Líquido</th><th style="text-align:right">Part. %</th></tr></thead><tbody>`;
   cotistas.forEach(c=>{const cpl=c.cotas*cur,lb=cpl-c.aportes,ir=lb>0?lb*0.15:0,ll=lb-ir,pct=cpl/pl,moic=cpl/c.aportes;h+=`<tr><td style="font-weight:600;font-size:13px;color:#C5C8CC">${c.conta}</td><td style="text-align:right;color:#C5C8CC;font-weight:700">${moic.toFixed(2)}x</td><td style="text-align:right;color:#c9d1d9;font-weight:600">${fBRL(c.aportes)}</td><td style="text-align:right;color:var(--ac);font-weight:700">${fBRL(cpl)}</td><td style="text-align:right;color:#C5C8CC;font-weight:600">${fBRL(lb)}</td><td style="text-align:right;color:#C5C8CC;font-weight:600">${fBRL(ir)}</td><td style="text-align:right;color:var(--grn);font-weight:600">${fBRL(ll)}</td><td style="text-align:right"><span style="color:#8a94a6;font-weight:600">${(pct*100).toFixed(1)}%</span><div class="part-bar"><div class="part-fill" style="width:${pct*100}%"></div></div></td></tr>`});
   h+=`</tbody></table></div><div class="totals-row"><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">MOIC</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C5C8CC">${(pl/ta).toFixed(2)}x</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Total Aportes</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C5C8CC">${fBRL(ta)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">PL Total</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ac)">${fBRL(pl)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Lucro Líq. Total</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--grn)">${fBRL((pl-ta)*0.85)}</div></div></div>`;
   document.getElementById("tab-cotistas").innerHTML=h}
-function unlockInvest(){investidoresUnlocked=true;renderCotistas()}
 
 // --- RELATÓRIO ---
 let reportSections={resumo:true,grafico:true,performance:true,indicadores:true,graficos:true,investidores:false};
@@ -701,6 +708,10 @@ let reportComment="";
 let reportTitle="Relatório Mensal — Konstan Clube de Investimentos";
 
 function toggleReport(key){
+  if(key==="investidores"&&!reportSections.investidores&&!investidoresUnlocked){
+    alert("Para incluir a seção Investidores, primeiro desbloqueie a aba \"Investidores\" com seu login.");
+    return;
+  }
   reportSections[key]=!reportSections[key];renderRelatorio()
 }
 
@@ -770,6 +781,12 @@ async function exportXLSX(){
 function exportPDF(){
   reportComment=document.getElementById("reportComment")?.value||"";
   reportTitle=document.getElementById("reportTitle")?.value||reportTitle;
+
+  // Exige sessão autenticada quando a seção Investidores estiver marcada
+  if(reportSections.investidores && !investidoresUnlocked){
+    alert("Sessão não autenticada. Desbloqueie a aba \"Investidores\" com seu login antes de exportar o relatório com essa seção.");
+    return;
+  }
 
   // Container oculto para charts temporários
   const tmpDiv=document.createElement("div");
@@ -1077,8 +1094,8 @@ function buildPDF(imgs){
   setTimeout(()=>{w.print()},500);
 }
 
-// Auto-render on load — busca os dados da planilha e então renderiza a Capa
-(async()=>{ const ok=await loadData(); if(ok) showTab("capa"); })();
+// Auto-render on load — carrega os dados do Supabase Storage e então renderiza
+bootDashboard();
 </script>
 </body>
 </html>
