@@ -157,7 +157,7 @@ body{background:radial-gradient(1100px 520px at 50% -8%,rgba(86,179,232,0.10),tr
 html{scrollbar-color:rgba(86,179,232,0.25) transparent;scrollbar-width:thin}
 /* Inputs com foco luminoso */
 .date-input:focus,.input-field:focus,.login-input:focus,.report-textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(86,179,232,0.12)}
- 
+
 @media(max-width:700px){.report-checks{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){
   .header{padding:16px 14px 14px}
@@ -242,7 +242,7 @@ let sbAuth = null;
 try {
   if (window.supabase) sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch (e) { console.error('Falha ao iniciar Supabase:', e); }
- 
+
 // Verifica sessão existente ao carregar a página (persistência do login)
 async function checkInvestSession(){
   if(!sbAuth) return;
@@ -254,7 +254,7 @@ async function checkInvestSession(){
     }
   }catch(e){ /* sem sessão: segue bloqueado */ }
 }
- 
+
 // Login na área restrita
 async function unlockInvest(){
   const emailEl = document.getElementById("investEmail");
@@ -285,7 +285,7 @@ async function unlockInvest(){
     if(btn){ btn.disabled = false; btn.textContent = "ENTRAR"; }
   }
 }
- 
+
 // Logout: bloqueia a área restrita novamente
 async function signOutInvest(){
   if(sbAuth){ try{ await sbAuth.auth.signOut(); }catch(e){} }
@@ -293,14 +293,14 @@ async function signOutInvest(){
   reportSections.investidores = false;
   if(currentTab === 'cotistas') renderCotistas();
 }
- 
+
 // ============================================
 // FONTE DE DADOS (ALLDATA) — arquivo no Supabase Storage
 // ============================================
 const DATA_BUCKET = 'dados';          // nome do bucket no Supabase Storage
 const DATA_FILE   = 'alldata.json';   // nome do arquivo dentro do bucket
 const DATA_URL    = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${DATA_FILE}`;
- 
+
 // Busca o arquivo de dados e preenche ALLDATA / rawData
 async function loadData(){
   const res = await fetch(DATA_URL, { cache: 'no-store' });
@@ -310,7 +310,7 @@ async function loadData(){
   ALLDATA = json;
   rawData = ALLDATA.map(r=>({date:r.d,k:r.k,c:r.c,i:r.i,s:r.s,q:r.q,a:r.a}));
 }
- 
+
 // Inicialização do painel: carrega os dados antes de renderizar
 async function bootDashboard(){
   const content = document.querySelector('.content');
@@ -329,9 +329,9 @@ async function bootDashboard(){
     console.error('Falha ao carregar dados:', err);
   }
 }
- 
+
 let ALLDATA=[];
- 
+
 const MN=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MN_SHORT=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 let rawData=[];
@@ -339,7 +339,7 @@ let cotistas=[{conta:"6704186",cotas:415825.222760,aportes:482000},{conta:"67029
 let currentTab="capa",cotaChart=null,barChart=null,sharpeChart=null,ddChart=null,plChart=null,excessChart=null,riskRetChart=null,varChart=null,investidoresUnlocked=false;
 let showCDI=true,showIbov=true,showSP=true;
 let dateFrom="",dateTo="";
- 
+
 const fBRL=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const fPct=n=>(n>=0?"+":"")+(n*100).toFixed(2).replace(".",",")+"%";
 const fD=s=>{const[y,m,d]=s.split("-");return d+"/"+m+"/"+y};
@@ -349,14 +349,14 @@ const getCota=()=>getLast().k;
 const getTotalCotas=()=>getLast().q;
 const getTotalAportes=()=>getLast().a;
 function fullMonth(sm){const[ms,ys]=sm.split("/");return MN[MN_SHORT.indexOf(ms)]+"/20"+ys}
- 
+
 function filterByDates(){
   let f=rawData;
   if(dateFrom)f=f.filter(d=>d.date>=dateFrom);
   if(dateTo)f=f.filter(d=>d.date<=dateTo);
   return f.length>0?f:rawData;
 }
- 
+
 function calcDynPerf(){
   const byMonth={};
   rawData.forEach(d=>{const k=d.date.slice(0,7);if(!byMonth[k]||d.date>byMonth[k].date)byMonth[k]={...d}});
@@ -370,7 +370,7 @@ function calcDynPerf(){
     return{m:label,ck:d.k,cc:d.c,ci:d.i,cs:d.s,rk:Math.round(rk*100)/100,rc:Math.round(rc*100)/100,ri:Math.round(ri*100)/100,rs:Math.round(rs*100)/100}
   });
 }
- 
+
 function calcAnnualReturns(dp){
   const byY={};dp.forEach(p=>{const y="20"+p.m.split("/")[1];if(!byY[y])byY[y]={last:p};else byY[y].last=p});
   const yrs=Object.keys(byY).sort();
@@ -384,7 +384,7 @@ function calcAnnualReturns(dp){
     return{year:y,cota:byY[y].last.ck,ret:Math.round(ret*100)/100}
   });
 }
- 
+
 function sampleWeekly(data){
   const result=[];let lastWeek="";
   data.forEach(d=>{
@@ -395,7 +395,7 @@ function sampleWeekly(data){
   });
   return result;
 }
- 
+
 // ============================================================
 //  PALETA ÚNICA (fonte de verdade para os gráficos em canvas)
 //  Espelha os tokens CSS de :root. Canvas não lê var(--x),
@@ -403,12 +403,12 @@ function sampleWeekly(data){
 // ============================================================
 const C={ac:"#56b3e8",ac2:"#8bc9f0",cdi:"#fbbf24",ibov:"#f87171",sp:"#a78bfa",grn:"#22c55e",red:"#ef4444",tx:"#C8CCD2",tx2:"#97a2b4",tx3:"#79859a",tx4:"#6b7689",grid:"rgba(255,255,255,0.045)"};
 const MONO="JetBrains Mono";
- 
+
 // ---- Builders de marcação (espelham o helper kpi) ----
 function kpi(l,v){return`<div class="kpi"><div class="kpi-label">${l}</div><div class="kpi-value">${v}</div></div>`}
 function sectionTitle(t,style){return`<h3 class="section-title"${style?` style="${style}"`:""}>${t}</h3>`}
 function chartBox(id,hCls,label){return`<div class="chart-box"><div class="${hCls||"chart-h"}"><canvas id="${id}" role="img" aria-label="${(label||"").replace(/"/g,"&quot;")}"></canvas></div></div>`}
- 
+
 // ---- Fábrica de opções do Chart.js ----
 // base = scaffolding comum (responsive, cores/fontes dos eixos, grids).
 // extra = bits específicos de cada gráfico, mesclados por cima (deep-merge).
@@ -433,7 +433,7 @@ function baseOpts(extra){
   return extra?dmerge(base,extra):base;
 }
 function legendLabels(filter){return{color:C.tx2,font:{size:10,family:MONO},boxWidth:12,...(filter?{filter}:{})}}
- 
+
 // ============================================================
 //  CONTROLE DE ABAS — render preguiçoso + ARIA + animação
 // ============================================================
@@ -441,7 +441,7 @@ const TABS=["capa","performance","indicadores","cotistas","relatorio"];
 const rendered=new Set();
 const renderers={capa:renderCapa,performance:renderPerformance,indicadores:renderIndicadores,cotistas:renderCotistas,relatorio:renderRelatorio};
 function renderTab(t){(renderers[t]||(()=>{}))();rendered.add(t)}
- 
+
 function showTab(t){
   currentTab=t;
   TABS.forEach(id=>{
@@ -454,7 +454,7 @@ function showTab(t){
   const panel=document.getElementById("tab-"+t); // re-dispara a animação de entrada
   panel.classList.remove("fade-in");void panel.offsetWidth;panel.classList.add("fade-in");
 }
- 
+
 // Navegação por seta/Home/End entre as abas (padrão WAI-ARIA tabs)
 function tabKey(e){
   const i=TABS.indexOf(currentTab);let n=null;
@@ -463,11 +463,11 @@ function tabKey(e){
   else if(e.key==="Home")n=0;else if(e.key==="End")n=TABS.length-1;
   if(n!==null){e.preventDefault();showTab(TABS[n]);document.getElementById("tabbtn-"+TABS[n]).focus()}
 }
- 
+
 function doRefresh(){const b=document.querySelector(".refresh-btn");b.classList.add("spinning");setTimeout(()=>b.classList.remove("spinning"),800);loadData().then(()=>renderTab(currentTab)).catch(e=>console.error('Falha ao atualizar dados:',e))}
 function applyDateFilter(){dateFrom=document.getElementById("dfrom")?.value||"";dateTo=document.getElementById("dto")?.value||"";renderCapa()}
 function toggleLine(w){if(w==="cdi")showCDI=!showCDI;if(w==="ibov")showIbov=!showIbov;if(w==="sp")showSP=!showSP;renderCapa()}
- 
+
 function renderCapa(){
   const last=getLast(),cur=last.k,tc=getTotalCotas(),ta=getTotalAportes(),pl=tc*cur,lb=pl-ta,ll=lb*0.85;
   const filtered=filterByDates(),pF=filtered[0]?.k||cur,pR=(cur-pF)/pF;
@@ -506,7 +506,7 @@ function renderCapa(){
       plugins:{tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(filtered[items[0].dataIndex].date),label:c=>{const ret=((c.parsed.y-1)*100).toFixed(2);return c.dataset.label+": "+c.parsed.y.toFixed(6)+" ("+(ret>=0?"+":"")+ret+"%)"}}}},
       scales:{x:{ticks:{maxTicksLimit:10,callback:function(v,i){const d=filtered[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}}},y:{min:yMin,max:yMax,ticks:{callback:v=>v.toFixed(2)}}}
     })})})}
- 
+
 function renderPerformance(){const dp=calcDynPerf(),ar=calcAnnualReturns(dp);
   let h=sectionTitle("Retornos Anuais")+`<div class="annual-grid" style="grid-template-columns:repeat(${ar.length},1fr)">`;
   ar.forEach(a=>{h+=`<div class="annual-card"><div style="font-size:12px;color:var(--tx3);font-weight:700;margin-bottom:8px">${a.year}</div><div style="font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;color:${a.ret>=0?"var(--grn)":"var(--red)"};letter-spacing:-0.5px">${a.ret>=0?"+":""}${a.ret.toFixed(2)}%</div><div style="font-size:10px;color:var(--tx3);margin-top:6px;font-family:'JetBrains Mono',monospace">Cota: ${a.cota.toFixed(6)}</div></div>`});
@@ -520,7 +520,7 @@ function renderPerformance(){const dp=calcDynPerf(),ar=calcAnnualReturns(dp);
     plugins:{tooltip:{callbacks:{label:c=>(c.parsed.y>=0?"+":"")+c.parsed.y.toFixed(2)+"%"}}},
     scales:{x:{ticks:{color:"#707a8a",maxRotation:45}},y:{ticks:{color:C.tx3,callback:v=>v.toFixed(0)+"%"},grid:{display:false}}}
   })})})}
- 
+
 function renderIndicadores(){
   const indCard=(title,id,label)=>`<div class="ind-card"><h4>${title}</h4><div class="chart-h-sm"><canvas id="${id}" role="img" aria-label="${label.replace(/"/g,"&quot;")}"></canvas></div></div>`;
   let h=sectionTitle("Indicadores de Performance")+`<div id="perfMetrics" style="margin-bottom:28px"></div>`;
@@ -533,14 +533,14 @@ function renderIndicadores(){
   h+=indCard("Excess Return","excessChart","Retorno excedente aproximado da Konstan em reais frente a Ibovespa, CDI e S&P 500");
   h+=`</div>`;
   document.getElementById("tab-indicadores").innerHTML=h;
- 
+
   requestAnimationFrame(()=>{
     // --- Monthly returns for Sharpe, Vol, Risk x Return ---
     const byMonth={};rawData.forEach(d=>{const k=d.date.slice(0,7);if(!byMonth[k]||d.date>byMonth[k].date)byMonth[k]={...d}});
     const mKeys=Object.keys(byMonth).sort();
     const mRetK=[],mRetC=[],mRetI=[],mRetS=[];
     for(let i=1;i<mKeys.length;i++){const p=byMonth[mKeys[i-1]],c=byMonth[mKeys[i]];mRetK.push(c.k/p.k-1);mRetC.push(c.c/p.c-1);mRetI.push(c.i/p.i-1);mRetS.push(c.s/p.s-1)}
- 
+
     function rollSharpe(rets,rfRets,w){
       const out=[];for(let i=0;i<rets.length;i++){
         if(i<w-1){out.push(null);continue}
@@ -550,7 +550,7 @@ function renderIndicadores(){
         out.push(std>0?(mean/std)*Math.sqrt(12):0)
       }return out
     }
- 
+
     // --- SHARPE ---
     const sK=rollSharpe(mRetK,mRetC,12),sI=rollSharpe(mRetI,mRetC,12),sS=rollSharpe(mRetS,mRetC,12);
     const sLabels=mKeys.slice(1).map(k=>{const[y,m]=k.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)});
@@ -562,7 +562,7 @@ function renderIndicadores(){
         {label:"S&P500",data:sS,borderColor:C.sp,borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[4,2]}
       ]},options:baseOpts({interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:legendLabels()},tooltip:{mode:"index",intersect:false,callbacks:{label:c=>c.dataset.label+": "+(c.parsed.y!==null?c.parsed.y.toFixed(3):"—")}}},scales:{x:{ticks:{maxTicksLimit:8}},y:{ticks:{callback:v=>v.toFixed(1)}}}})})
     }
- 
+
     // --- DRAWDOWN ---
     const ddK=[],ddI=[],ddS=[];let peakK=rawData[0].k,peakI=rawData[0].i,peakS=rawData[0].s;
     rawData.forEach(d=>{
@@ -578,11 +578,11 @@ function renderIndicadores(){
         {label:"S&P500 (BRL)",data:ddS,borderColor:C.sp,fill:false,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
       ]},options:baseOpts({interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:legendLabels()},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(rawData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+c.parsed.y.toFixed(2)+"%"}}},scales:{x:{ticks:{maxTicksLimit:8,callback:function(v,i){const d=rawData[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}}},y:{ticks:{callback:v=>v.toFixed(0)+"%"}}}})})
     }
- 
+
     // --- DAILY RETURNS (used by Risk x Return and Volatility) ---
     const dRetK=[],dRetC=[],dRetI=[],dRetS=[];
     for(let i=1;i<rawData.length;i++){dRetK.push(rawData[i].k/rawData[i-1].k-1);dRetC.push(rawData[i].c/rawData[i-1].c-1);dRetI.push(rawData[i].i/rawData[i-1].i-1);dRetS.push(rawData[i].s/rawData[i-1].s-1)}
- 
+
     // --- RISCO x RETORNO (scatter, daily-based vol) ---
     const last=getLast();const nMonths=mRetK.length;
     const annRetK=((last.k/1)**(12/nMonths)-1)*100;
@@ -621,7 +621,7 @@ function renderIndicadores(){
         })
       })
     }
- 
+
     // --- DISTRIBUIÇÃO DOS RETORNOS DIÁRIOS (histograma) ---
     const binWidth=0.25;
     const minBin=-4.50,maxBin=4.50;
@@ -649,7 +649,7 @@ function renderIndicadores(){
         {label:"Konstan",data:histK,backgroundColor:"rgba(86,179,232,0.7)",borderWidth:0,borderRadius:1,barPercentage:1,categoryPercentage:1}
       ]},options:baseOpts({plugins:{legend:{display:true,labels:legendLabels()},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>{const i=items[0].dataIndex;if(i===0)return"≤ -4,50%";if(i===histK.length-1)return"≥ 4,50%";const start=minBin+(i-1)*binWidth;return start.toFixed(2)+"% a "+(start+binWidth).toFixed(2)+"%"},label:c=>c.dataset.label+": "+c.parsed.y+" dias"}}},scales:{x:{ticks:{font:{size:7},maxTicksLimit:12,maxRotation:0}}}})})
     }
- 
+
     // --- PL + APORTES + RESULTADO ACUMULADO (weekly) ---
     const weeklyData=sampleWeekly(rawData);
     const plLabels=weeklyData.map(d=>{const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)});
@@ -660,7 +660,7 @@ function renderIndicadores(){
         {label:"Aportes Acumulados",data:weeklyData.map(d=>d.a),borderColor:C.cdi,fill:false,pointRadius:0,tension:0,borderWidth:1.5,borderDash:[6,3]}
       ]},options:baseOpts({interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:legendLabels()},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(weeklyData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+fBRL(c.parsed.y)}}},scales:{x:{ticks:{maxTicksLimit:8}},y:{ticks:{callback:v=>"R$ "+(v/1000).toFixed(0)+"k"}}}})})
     }
- 
+
     // --- EXCESS RETURN vs IBOVESPA & CDI (weekly line chart) ---
     const exLabels=weeklyData.map(d=>{const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)});
     const exVsIbov=weeklyData.map(d=>(d.k-d.i)*d.q);
@@ -674,7 +674,7 @@ function renderIndicadores(){
         {label:"vs S&P500 (BRL)",data:exVsSP,borderColor:C.sp,backgroundColor:"rgba(167,139,250,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
       ]},options:baseOpts({interaction:{mode:"index",intersect:false},plugins:{legend:{display:true,labels:legendLabels()},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>fD(weeklyData[items[0].dataIndex].date),label:c=>c.dataset.label+": "+fBRL(c.parsed.y)}}},scales:{x:{ticks:{maxTicksLimit:8}},y:{ticks:{callback:v=>"R$"+(Math.abs(v)>=1000000?(v/1000000).toFixed(1)+"M":(v/1000).toFixed(0)+"k")}}}})})
     }
- 
+
     // --- INDICADORES DE PERFORMANCE (tabela resumo) ---
     {
       const rf=annRetC;
@@ -704,7 +704,7 @@ function renderIndicadores(){
     }
   });
 }
- 
+
 function renderCotistas(){
   if(!investidoresUnlocked){document.getElementById("tab-cotistas").innerHTML=`<div class="lock-screen"><div class="lock-box"><div class="lock-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#56b3e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg></div><h3 style="margin:0 0 6px;font-size:16px;font-weight:700;color:#C5C8CC;font-family:'Inter',system-ui,sans-serif;letter-spacing:1px;text-transform:uppercase">Área restrita</h3><p style="margin:0 0 20px;font-size:12px;color:#505a6b;font-family:'Inter',system-ui,sans-serif">Entre com seu e-mail e senha para acessar.</p><input type="email" id="investEmail" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:12px;letter-spacing:0" placeholder="E-mail" autocomplete="email" onkeydown="if(event.key==='Enter')unlockInvest()"><input type="password" id="investPw" class="login-input" style="font-size:14px;padding:12px 16px;margin-bottom:14px" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockInvest()"><p id="investErr" class="err-msg hidden">E-mail ou senha incorretos</p><button id="investBtn" class="login-btn" style="font-size:13px;padding:12px" onclick="unlockInvest()">ENTRAR</button></div></div>`;return}
   const cur=getCota(),tc=getTotalCotas(),pl=tc*cur,ta=getTotalAportes();
@@ -712,12 +712,12 @@ function renderCotistas(){
   cotistas.forEach(c=>{const cpl=c.cotas*cur,lb=cpl-c.aportes,ir=lb>0?lb*0.15:0,ll=lb-ir,pct=cpl/pl,moic=cpl/c.aportes;h+=`<tr><td style="font-weight:600;font-size:13px;color:#C5C8CC">${c.conta}</td><td style="text-align:right;color:#C5C8CC;font-weight:700">${moic.toFixed(2)}x</td><td style="text-align:right;color:#c9d1d9;font-weight:600">${fBRL(c.aportes)}</td><td style="text-align:right;color:var(--ac);font-weight:700">${fBRL(cpl)}</td><td style="text-align:right;color:#C5C8CC;font-weight:600">${fBRL(lb)}</td><td style="text-align:right;color:#C5C8CC;font-weight:600">${fBRL(ir)}</td><td style="text-align:right;color:var(--grn);font-weight:600">${fBRL(ll)}</td><td style="text-align:right"><span style="color:#8a94a6;font-weight:600">${(pct*100).toFixed(1)}%</span><div class="part-bar"><div class="part-fill" style="width:${pct*100}%"></div></div></td></tr>`});
   h+=`</tbody></table></div><div class="totals-row"><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">MOIC</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C5C8CC">${(pl/ta).toFixed(2)}x</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Total Aportes</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#C5C8CC">${fBRL(ta)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">PL Total</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ac)">${fBRL(pl)}</div></div><div style="text-align:center"><div style="font-size:9px;color:#505a6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">Lucro Líq. Total</div><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--grn)">${fBRL((pl-ta)*0.85)}</div></div></div>`;
   document.getElementById("tab-cotistas").innerHTML=h}
- 
+
 // --- RELATÓRIO ---
 let reportSections={resumo:true,grafico:true,performance:true,indicadores:true,graficos:true,investidores:false};
 let reportComment="";
 let reportTitle="Relatório Mensal — Konstan Clube de Investimentos";
- 
+
 function toggleReport(key){
   if(key==="investidores"&&!reportSections.investidores&&!investidoresUnlocked){
     alert("Para incluir a seção Investidores, primeiro desbloqueie a aba \"Investidores\" com seu login.");
@@ -725,17 +725,17 @@ function toggleReport(key){
   }
   reportSections[key]=!reportSections[key];renderRelatorio()
 }
- 
+
 function renderRelatorio(){
   const last=getLast(),cur=last.k,tc=getTotalCotas(),ta=getTotalAportes(),pl=tc*cur;
   let h=`<h3 class="section-title">Configuração do Relatório</h3><div class="report-config">`;
- 
+
   // Title
   h+=`<div class="report-section"><h4>Título do Relatório</h4><input type="text" id="reportTitle" class="report-textarea" style="min-height:auto;font-family:'JetBrains Mono',monospace" value="${reportTitle}" onchange="reportTitle=this.value"></div>`;
- 
+
   // Comment
   h+=`<div class="report-section"><h4>Comentário do Gestor</h4><textarea id="reportComment" class="report-textarea" placeholder="Insira um comentário sobre o período...">${reportComment}</textarea></div>`;
- 
+
   // Sections to include
   h+=`<div class="report-section"><h4>Seções do Relatório</h4><div class="report-checks">`;
   const sections=[
@@ -751,7 +751,7 @@ function renderRelatorio(){
     h+=`<div class="report-check ${checked?"checked":""}" onclick="toggleReport('${s.key}')"><div class="check-box">${checked?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':""}</div>${s.label}</div>`;
   });
   h+=`</div></div>`;
- 
+
   // Preview summary
   h+=`<div class="report-section"><h4>Resumo da Exportação</h4><div class="report-preview">`;
   const selected=sections.filter(s=>reportSections[s.key]).map(s=>s.label);
@@ -759,16 +759,16 @@ function renderRelatorio(){
   selected.forEach(s=>{h+=`<span style="background:rgba(86,179,232,0.1);color:var(--ac);padding:4px 10px;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace">${s}</span>`});
   h+=`</div>`;
   h+=`</div></div>`;
- 
+
   // Export button
   h+=`<div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">`;
   h+=`<button class="btn-export" onclick="exportPDF()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar PDF</button>`;
   h+=`<button class="btn-xlsx" onclick="exportXLSX()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Baixar Excel</button>`;
   h+=`</div></div>`;
- 
+
   document.getElementById("tab-relatorio").innerHTML=h;
 }
- 
+
 async function exportXLSX(){
   if(typeof ExcelJS==="undefined"){alert("A biblioteca de planilha ainda está carregando. Tente novamente em alguns segundos.");return}
   const wb=new ExcelJS.Workbook();
@@ -788,28 +788,28 @@ async function exportXLSX(){
   const a=document.createElement("a");a.href=url;a.download="konstan_alldata.xlsx";document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
- 
+
 function exportPDF(){
   reportComment=document.getElementById("reportComment")?.value||"";
   reportTitle=document.getElementById("reportTitle")?.value||reportTitle;
- 
+
   // Exige sessão autenticada quando a seção Investidores estiver marcada
   if(reportSections.investidores && !investidoresUnlocked){
     alert("Sessão não autenticada. Desbloqueie a aba \"Investidores\" com seu login antes de exportar o relatório com essa seção.");
     return;
   }
- 
+
   // Container oculto para charts temporários
   const tmpDiv=document.createElement("div");
   tmpDiv.style.cssText="position:absolute;left:-9999px;top:0;width:700px;";
   document.body.appendChild(tmpDiv);
- 
+
   const last=getLast(),cur=last.k,tc=getTotalCotas(),ta=getTotalAportes(),pl=tc*cur,lb=pl-ta,ll=lb*0.85;
- 
+
   // ============================================================
   // PRÉ-CÁLCULOS
   // ============================================================
- 
+
   // Retornos mensais
   const byMo={};rawData.forEach(d=>{const k=d.date.slice(0,7);if(!byMo[k]||d.date>byMo[k].date)byMo[k]={...d}});
   const moKeys=Object.keys(byMo).sort();
@@ -817,7 +817,7 @@ function exportPDF(){
   for(let i=1;i<moKeys.length;i++){const p=byMo[moKeys[i-1]],c=byMo[moKeys[i]];mrK.push(c.k/p.k-1);mrC.push(c.c/p.c-1);mrI.push(c.i/p.i-1);mrS.push(c.s/p.s-1)}
   const nMo=mrK.length;
   const aRK=((last.k)**(12/nMo)-1)*100,aRC=((last.c)**(12/nMo)-1)*100,aRI=((last.i)**(12/nMo)-1)*100,aRS=((last.s)**(12/nMo)-1)*100;
- 
+
   // Retornos diários
   const drK=[],drC=[],drI=[],drS=[];
   for(let i=1;i<rawData.length;i++){drK.push(rawData[i].k/rawData[i-1].k-1);drC.push(rawData[i].c/rawData[i-1].c-1);drI.push(rawData[i].i/rawData[i-1].i-1);drS.push(rawData[i].s/rawData[i-1].s-1)}
@@ -825,21 +825,21 @@ function exportPDF(){
   const vK=fV(drK),vC=fV(drC),vI=fV(drI),vS=fV(drS);
   function fDDn(r){let s=0,n=0;r.forEach(x=>{if(x<0){s+=x*x;n++}});return n>0?Math.sqrt(s/n)*Math.sqrt(252)*100:0}
   const ddK2=fDDn(drK),ddC2=fDDn(drC),ddI2=fDDn(drI),ddS2=fDDn(drS);
- 
+
   const wkData=sampleWeekly(rawData);
   const wkLabels=wkData.map(d=>{const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)});
   const dp=calcDynPerf();
- 
+
   // Charts a renderizar — sempre num formato consistente (700x350)
   const charts=[];
   const W=700, H=350;
- 
+
   // Helper para criar canvas em sequência
   function mkCanvas(){const c=document.createElement("canvas");c.width=W;c.height=H;tmpDiv.appendChild(c);return c}
- 
+
   // Opções base de gráficos para PDF (fundo branco, cores escuras)
   const baseOpts={responsive:false,animation:false,plugins:{legend:{display:true,labels:{color:"#333",font:{size:10},boxWidth:10}},tooltip:{enabled:false}},scales:{x:{ticks:{color:"#666",font:{size:9}},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9}},grid:{display:false}}}};
- 
+
   // 1) Evolução das Cotas (linha normalizada)
   const c1=mkCanvas();
   const baseK=rawData[0].k,baseC=rawData[0].c,baseI=rawData[0].i,baseS=rawData[0].s;
@@ -849,13 +849,13 @@ function exportPDF(){
     {label:"Ibovespa",data:rawData.map(d=>d.i/baseI),borderColor:"#f87171",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]},
     {label:"S&P500 (BRL)",data:rawData.map(d=>d.s/baseS),borderColor:"#a78bfa",fill:false,tension:0.3,pointRadius:0,borderWidth:1.5,borderDash:[4,2]}
   ]},options:{...baseOpts,scales:{x:{ticks:{color:"#666",font:{size:8},maxTicksLimit:10,callback:function(v,i){const d=rawData[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9},callback:v=>v.toFixed(2)},grid:{display:false}}}}}));
- 
+
   // 2) Retornos Mensais (barras)
   const c2=mkCanvas();
   charts.push(new Chart(c2,{type:"bar",data:{labels:dp.map(d=>d.m),datasets:[
     {label:"Konstan",data:dp.map(d=>d.rk),backgroundColor:dp.map(d=>d.rk>=0?"#22c55e":"#ef4444"),borderRadius:3,barPercentage:0.7}
   ]},options:{...baseOpts,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:{color:"#666",font:{size:8},maxRotation:45,maxTicksLimit:18},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9},callback:v=>v.toFixed(0)+"%"},grid:{display:false}}}}}));
- 
+
   // 3) Risco × Retorno
   const c3=mkCanvas();
   const allV=[ddK2,ddC2,ddI2,ddS2];const smlMX=Math.max(...allV)*1.1;
@@ -867,7 +867,7 @@ function exportPDF(){
     {label:"Ibovespa",data:[{x:ddI2,y:aRI}],backgroundColor:"#f87171",borderColor:"#f87171",pointRadius:6},
     {label:"S&P500",data:[{x:ddS2,y:aRS}],backgroundColor:"#a78bfa",borderColor:"#a78bfa",pointRadius:6}
   ]},options:{responsive:false,animation:false,plugins:{legend:{display:true,labels:{color:"#333",font:{size:10},boxWidth:10,filter:item=>item.text!=="SML"}},tooltip:{enabled:false}},scales:{x:{min:0,title:{display:true,text:"Downside Deviation (%)",color:"#666",font:{size:10}},ticks:{color:"#666",font:{size:9},callback:v=>v.toFixed(0)+"%"},grid:{display:false}},y:{min:0,title:{display:true,text:"Retorno Anualizado (%)",color:"#666",font:{size:10}},ticks:{color:"#666",font:{size:9},callback:v=>v.toFixed(0)+"%"},grid:{display:false}}}}}));
- 
+
   // 4) Distribuição dos Retornos Diários (histograma)
   const c4=mkCanvas();
   const binWidth=0.25,minBin=-4.50,maxBin=4.50;
@@ -887,7 +887,7 @@ function exportPDF(){
   charts.push(new Chart(c4,{type:"bar",data:{labels:histLabels.map(b=>b+"%"),datasets:[
     {label:"Konstan",data:histK,backgroundColor:"rgba(86,179,232,0.7)",borderWidth:0,borderRadius:1,barPercentage:1,categoryPercentage:1}
   ]},options:{...baseOpts,scales:{x:{ticks:{color:"#666",font:{size:7},maxTicksLimit:14,maxRotation:0},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9}},grid:{display:false}}}}}));
- 
+
   // 5) Índice Sharpe (12M)
   const c5=mkCanvas();
   function rollSharpe(rets,rfRets,w){
@@ -906,7 +906,7 @@ function exportPDF(){
     {label:"Ibovespa",data:sI,borderColor:"#f87171",borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[4,2],fill:false},
     {label:"S&P500",data:sS,borderColor:"#a78bfa",borderWidth:1.5,pointRadius:0,tension:0.3,borderDash:[4,2],fill:false}
   ]},options:{...baseOpts,scales:{x:{ticks:{color:"#666",font:{size:8},maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9},callback:v=>v.toFixed(1)},grid:{display:false}}}}}));
- 
+
   // 6) Drawdown
   const c6=mkCanvas();
   const ddK=[],ddI=[],ddS=[];let peakK=rawData[0].k,peakI=rawData[0].i,peakS=rawData[0].s;
@@ -920,14 +920,14 @@ function exportPDF(){
     {label:"Ibovespa",data:ddI,borderColor:"#f87171",fill:false,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]},
     {label:"S&P500 (BRL)",data:ddS,borderColor:"#a78bfa",fill:false,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
   ]},options:{...baseOpts,scales:{x:{ticks:{color:"#666",font:{size:8},maxTicksLimit:10,callback:function(v,i){const d=rawData[i];if(!d)return"";const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)}},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9},callback:v=>v.toFixed(0)+"%"},grid:{display:false}}}}}));
- 
+
   // 7) Patrimônio × Aportes
   const c7=mkCanvas();
   charts.push(new Chart(c7,{type:"line",data:{labels:wkLabels,datasets:[
     {label:"Patrimônio Líquido",data:wkData.map(d=>d.q*d.k),borderColor:"#56b3e8",backgroundColor:"rgba(86,179,232,0.08)",fill:true,pointRadius:0,tension:0.3,borderWidth:2},
     {label:"Aportes Acumulados",data:wkData.map(d=>d.a),borderColor:"#fbbf24",fill:false,pointRadius:0,tension:0,borderWidth:1.5,borderDash:[6,3]}
   ]},options:{...baseOpts,scales:{x:{ticks:{color:"#666",font:{size:8},maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9},callback:v=>"R$ "+(v/1000).toFixed(0)+"k"},grid:{display:false}}}}}));
- 
+
   // 8) Excess Return vs Ibovespa & CDI
   const c8=mkCanvas();
   const exVsIbov=wkData.map(d=>(d.k-d.i)*d.q);
@@ -936,7 +936,7 @@ function exportPDF(){
     {label:"vs Ibovespa",data:exVsIbov,borderColor:"#f87171",backgroundColor:"rgba(248,113,113,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:2},
     {label:"vs CDI",data:exVsCDI,borderColor:"#fbbf24",backgroundColor:"rgba(251,191,36,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
   ]},options:{...baseOpts,scales:{x:{ticks:{color:"#666",font:{size:8},maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:"#666",font:{size:9},callback:v=>"R$"+(Math.abs(v)>=1000000?(v/1000000).toFixed(1)+"M":(v/1000).toFixed(0)+"k")},grid:{display:false}}}}}));
- 
+
   // Esperar todos renderizarem, capturar e construir PDF
   setTimeout(()=>{
     const imgs={
@@ -954,11 +954,11 @@ function exportPDF(){
     buildPDF(imgs);
   },400);
 }
- 
+
 function buildPDF(imgs){
   const last=getLast(),cur=last.k,tc=getTotalCotas(),ta=getTotalAportes(),pl=tc*cur,lb=pl-ta,ll=lb*0.85;
   const kR=((cur/1)-1)*100,cR=((last.c/1)-1)*100,iR=((last.i/1)-1)*100,sR=((last.s/1)-1)*100;
- 
+
   // Build print-friendly HTML
   let pdf=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${reportTitle}</title><style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -987,10 +987,10 @@ function buildPDF(imgs){
     .chart-cell img{width:100%;height:auto;display:block;border:none}
     @media print{body{padding:20px}@page{margin:15mm;size:A4}@page{@top-left{content:none}@top-right{content:none}@bottom-left{content:none}@bottom-right{content:none}}}
   </style></head><body>`;
- 
+
   pdf+=`<h1>${reportTitle}</h1>`;
   pdf+=`<div class="subtitle">Data base: ${fD(last.date)} · São Paulo, SP</div>`;
- 
+
   if(reportSections.resumo){
     pdf+=`<h2>Resumo</h2>`;
     pdf+=`<div class="kpi-row">`;
@@ -1006,11 +1006,11 @@ function buildPDF(imgs){
     pdf+=`<div class="perf-item"><div class="lbl">S&P500 (BRL)</div><div class="val">${sR.toFixed(2)}%</div></div>`;
     pdf+=`</div>`;
   }
- 
+
   if(reportComment.trim()){
     pdf+=`<h2>Comentário do Gestor</h2><p style="font-size:13px;line-height:1.6;color:#334155;margin:0 0 16px">${reportComment.replace(/\n/g,"<br>")}</p>`;
   }
- 
+
   if(reportSections.grafico){
     const pctCdiK=cR>0?((kR/cR)*100).toFixed(0):"—";
     const pctCdiI=cR>0?((iR/cR)*100).toFixed(0):"—";
@@ -1023,7 +1023,7 @@ function buildPDF(imgs){
     pdf+=`<tr><td>S&P500 (BRL)</td><td>${sR>=0?"+":""}${sR.toFixed(2)}%</td><td>${pctCdiS}%</td></tr>`;
     pdf+=`</tbody></table>`;
   }
- 
+
   if(reportSections.performance){
     const dp=calcDynPerf();const ar=calcAnnualReturns(dp);
     pdf+=`<h2>Retornos Anuais</h2>`;
@@ -1036,7 +1036,7 @@ function buildPDF(imgs){
       pdf+=`<tr><td>${fullMonth(p.m)}</td><td class="${p.rk>=0?"green":"red"}">${fR(p.rk)}</td><td class="${p.rc>=0?"green":"red"}">${fR(p.rc)}</td><td class="${p.ri>=0?"green":"red"}">${fR(p.ri)}</td><td class="${p.rs>=0?"green":"red"}">${fR(p.rs)}</td></tr>`});
     pdf+=`</tbody></table>`;
   }
- 
+
   if(reportSections.indicadores){
     const byMonth={};rawData.forEach(d=>{const k=d.date.slice(0,7);if(!byMonth[k]||d.date>byMonth[k].date)byMonth[k]={...d}});
     const mKeys=Object.keys(byMonth).sort();
@@ -1061,7 +1061,7 @@ function buildPDF(imgs){
     // Retorno anualizado
     const nMo=mRetK.length;
     const arK=((last.k/1)**(12/nMo)-1)*100,arI=((last.i/1)**(12/nMo)-1)*100,arS=((last.s/1)**(12/nMo)-1)*100;
- 
+
     pdf+=`<h2>Indicadores</h2>`;
     pdf+=`<table><thead><tr><th>Indicador</th><th>Konstan</th><th>Ibovespa</th><th>S&P500 (BRL)</th></tr></thead><tbody>`;
     pdf+=`<tr><td>Sharpe</td><td>${shK.toFixed(3)}</td><td>${shI.toFixed(3)}</td><td>${shS.toFixed(3)}</td></tr>`;
@@ -1071,7 +1071,7 @@ function buildPDF(imgs){
     pdf+=`<tr><td>MOIC</td><td>${moicK.toFixed(2)}x</td><td>${moicI.toFixed(2)}x</td><td>${moicS.toFixed(2)}x</td></tr>`;
     pdf+=`</tbody></table>`;
   }
- 
+
   // Gráficos — todos os 8 em grade 2 colunas, sem borda
   if(reportSections.graficos){
     pdf+=`<h2>Gráficos</h2>`;
@@ -1091,7 +1091,7 @@ function buildPDF(imgs){
     });
     pdf+=`</div>`;
   }
- 
+
   if(reportSections.investidores){
     pdf+=`<h2>Investidores</h2><table><thead><tr><th>Conta</th><th>MOIC</th><th>Aportes</th><th>PL Atual</th><th>Lucro Bruto</th><th>IR</th><th>Lucro Líq.</th><th>Part.</th></tr></thead><tbody>`;
     cotistas.forEach(c=>{const cpl=c.cotas*cur,clb=cpl-c.aportes,cir=clb>0?clb*0.15:0,cll=clb-cir,pct=cpl/pl;
@@ -1099,16 +1099,16 @@ function buildPDF(imgs){
     pdf+=`<tr style="font-weight:700;border-top:2px solid #e2e8f0"><td>Total</td><td>${(pl/ta).toFixed(2)}x</td><td>${fBRL(ta)}</td><td>${fBRL(pl)}</td><td>${fBRL(lb)}</td><td>${fBRL(lb>0?lb*0.15:0)}</td><td class="green">${fBRL(ll)}</td><td>100%</td></tr>`;
     pdf+=`</tbody></table>`;
   }
- 
+
   pdf+=`<div class="footer">Konstan Clube de Investimentos em Ações · São Paulo, SP · Gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}</div>`;
   pdf+=`</body></html>`;
- 
+
   const w=window.open("","_blank");
   w.document.write(pdf);
   w.document.close();
   setTimeout(()=>{w.print()},500);
 }
- 
+
 // Auto-render on load — carrega os dados do Supabase Storage e então renderiza
 bootDashboard();
 </script>
