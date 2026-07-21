@@ -347,7 +347,7 @@ const fCotas=n=>{const p=n.toFixed(2).split(".");return p[0].replace(/\B(?=(\d{3
 const getLast=()=>rawData[rawData.length-1];
 const getCota=()=>getLast().k;
 const getTotalCotas=()=>getLast().q;
-const getTotalAportes=()=>getLast().a;
+const getTotalAportes=()=>cotistas.reduce((s,c)=>s+c.aportes,0);
 function fullMonth(sm){const[ms,ys]=sm.split("/");return MN[MN_SHORT.indexOf(ms)]+"/20"+ys}
 
 function filterByDates(){
