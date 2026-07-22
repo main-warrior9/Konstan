@@ -663,9 +663,15 @@ function renderIndicadores(){
 
     // --- EXCESS RETURN vs IBOVESPA & CDI (weekly line chart) ---
     const exLabels=weeklyData.map(d=>{const[y,m]=d.date.split("-");return MN_SHORT[parseInt(m)-1]+"/"+y.slice(2)});
-    const exVsIbov=weeklyData.map(d=>(d.k-d.i)*d.q);
-    const exVsCDI=weeklyData.map(d=>(d.k-d.c)*d.q);
-    const exVsSP=weeklyData.map(d=>(d.k-d.s)*d.q);
+    // Excedente em R$ money-weighted: PL real menos uma carteira-benchmark
+    // que recebe os MESMOS aportes nas MESMAS datas (contínuo nos aportes).
+    const exByDate={};
+    {let uI=0,uC=0,uS=0,prevA=0;
+      rawData.forEach(d=>{const dA=d.a-prevA;if(dA){uI+=dA/d.i;uC+=dA/d.c;uS+=dA/d.s}prevA=d.a;
+        const pl=d.q*d.k;exByDate[d.date]={vsIbov:pl-uI*d.i,vsCDI:pl-uC*d.c,vsSP:pl-uS*d.s}})}
+    const exVsIbov=weeklyData.map(d=>exByDate[d.date].vsIbov);
+    const exVsCDI=weeklyData.map(d=>exByDate[d.date].vsCDI);
+    const exVsSP=weeklyData.map(d=>exByDate[d.date].vsSP);
     const ctx4=document.getElementById("excessChart");
     if(ctx4){if(excessChart)excessChart.destroy();
       excessChart=new Chart(ctx4,{type:"line",data:{labels:exLabels,datasets:[
@@ -930,8 +936,13 @@ function exportPDF(){
 
   // 8) Excess Return vs Ibovespa & CDI
   const c8=mkCanvas();
-  const exVsIbov=wkData.map(d=>(d.k-d.i)*d.q);
-  const exVsCDI=wkData.map(d=>(d.k-d.c)*d.q);
+  // Excedente money-weighted, contínuo nos aportes (mesmo método da tela)
+  const exByDate8={};
+  {let uI=0,uC=0,prevA=0;
+    rawData.forEach(d=>{const dA=d.a-prevA;if(dA){uI+=dA/d.i;uC+=dA/d.c}prevA=d.a;
+      const pl=d.q*d.k;exByDate8[d.date]={vsIbov:pl-uI*d.i,vsCDI:pl-uC*d.c}})}
+  const exVsIbov=wkData.map(d=>exByDate8[d.date].vsIbov);
+  const exVsCDI=wkData.map(d=>exByDate8[d.date].vsCDI);
   charts.push(new Chart(c8,{type:"line",data:{labels:wkLabels,datasets:[
     {label:"vs Ibovespa",data:exVsIbov,borderColor:"#f87171",backgroundColor:"rgba(248,113,113,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:2},
     {label:"vs CDI",data:exVsCDI,borderColor:"#fbbf24",backgroundColor:"rgba(251,191,36,0.07)",fill:true,pointRadius:0,tension:0.3,borderWidth:1.5,borderDash:[4,2]}
