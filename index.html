@@ -301,13 +301,91 @@ const DATA_BUCKET = 'dados';          // nome do bucket no Supabase Storage
 const DATA_FILE   = 'alldata.json';   // nome do arquivo dentro do bucket
 const DATA_URL    = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${DATA_FILE}`;
 
+// ---- Camada de ajuste manual de cotas -------------------------------
+// A base vem pronta de fonte externa e e sobrescrita periodicamente, entao
+// correcoes gravadas no alldata.json nao sobrevivem. O ajuste e aplicado
+// aqui, na leitura: nao importa quem sobrescreve o arquivo nem quando.
+//
+// O ajuste e CONDICIONAL. Cada entrada declara o valor errado que se espera
+// encontrar na origem (`de`). Se a origem trouxer outra coisa, o ajuste nao
+// e aplicado e vira divergencia — sinal de que a fonte foi corrigida e a
+// entrada deve sair do ajustes.json, antes que passe a estragar dado bom.
+const AJUSTES_FILE = 'ajustes.json';
+const AJUSTES_URL  = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${AJUSTES_FILE}`;
+const AJUSTES_EPS  = 1e-9;   // tolerancia de ponto flutuante (cotas tem 6 casas)
+
+async function carregarAjustes(){
+  try{
+    const res = await fetch(AJUSTES_URL, { cache: 'no-store' });
+    if(!res.ok) return {};              // arquivo ausente nao e erro
+    const j = await res.json();
+    return (j && typeof j === 'object' && !Array.isArray(j)) ? j : {};
+  }catch(e){
+    console.warn('[ajustes] falha ao carregar', AJUSTES_FILE, '-', e.message);
+    return {};                          // dashboard nao pode quebrar por causa disso
+  }
+}
+
+// Nao muta o array de entrada; devolve copia com as cotas corrigidas.
+function aplicarAjustesCotas(dados, ajustes){
+  const aplicados = [], divergencias = [], ausentes = [];
+  const saida = dados.map(r => ({ ...r }));
+  const porData = new Map();
+  for(const r of saida) porData.set(r.d, r);
+
+  for(const data of Object.keys(ajustes || {})){
+    const aj = ajustes[data];
+    if(!aj || typeof aj.de !== 'number' || typeof aj.para !== 'number') continue;
+    const reg = porData.get(data);
+    if(!reg){ ausentes.push({ data, ...aj }); continue; }
+    if(Math.abs(reg.k - aj.de) > AJUSTES_EPS){
+      divergencias.push({ data, esperado: aj.de, encontrado: reg.k, naoAplicado: aj.para });
+      continue;
+    }
+    reg.k = aj.para;
+    aplicados.push({ data, de: aj.de, para: aj.para });
+  }
+  return { dados: saida, aplicados, divergencias, ausentes };
+}
+
+// Divergencia e ausencia precisam ser vistas, nao so logadas. Fica fixo na
+// tela porque renderTab reescreve o .content a cada troca de aba.
+function avisarAjustes(r){
+  document.getElementById('ajustes-aviso')?.remove();
+  const pend = r.divergencias.length + r.ausentes.length;
+  if(!pend) return;
+  const linhas = [
+    ...r.divergencias.map(d => `${fD(d.data)}: origem agora traz ${d.encontrado} (ajuste esperava ${d.esperado}) — nao aplicado`),
+    ...r.ausentes.map(x => `${fD(x.data)}: data nao existe na base — ajuste ignorado`)
+  ];
+  const el = document.createElement('div');
+  el.id = 'ajustes-aviso';
+  el.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:9999;max-width:420px;background:var(--card);border:1px solid #fbbf24;border-radius:10px;padding:12px 14px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--tx3);box-shadow:0 6px 24px rgba(0,0,0,.35)';
+  el.innerHTML = `<div style="color:#fbbf24;margin-bottom:6px">ajustes.json: ${pend} pendencia(s)</div>`
+    + linhas.map(t => `<div style="margin-bottom:3px">${t}</div>`).join('')
+    + '<div style="margin-top:8px;color:var(--tx4)">Revise o ajustes.json no bucket.</div>'
+    + '<div style="margin-top:6px"><span onclick="this.closest(\'#ajustes-aviso\').remove()" style="cursor:pointer;color:var(--tx4)">fechar</span></div>';
+  document.body.appendChild(el);
+}
+
 // Busca o arquivo de dados e preenche ALLDATA / rawData
 async function loadData(){
   const res = await fetch(DATA_URL, { cache: 'no-store' });
   if(!res.ok) throw new Error('HTTP ' + res.status + ' ao buscar ' + DATA_FILE);
   const json = await res.json();
   if(!Array.isArray(json) || json.length === 0) throw new Error('Arquivo vazio ou em formato inválido');
-  ALLDATA = json;
+
+  // Ajuste entra ANTES de ALLDATA/rawData: tudo a jusante (graficos,
+  // indicadores, exportXLSX, exportPDF) le desses dois.
+  const ajustes = await carregarAjustes();
+  const r = aplicarAjustesCotas(json, ajustes);
+  if(r.aplicados.length) console.info('[ajustes] aplicados:', r.aplicados);
+  if(r.divergencias.length) console.warn('[ajustes] divergencias:', r.divergencias);
+  if(r.ausentes.length) console.warn('[ajustes] datas ausentes:', r.ausentes);
+  window.__ajustes = r;
+  avisarAjustes(r);
+
+  ALLDATA = r.dados;
   rawData = ALLDATA.map(r=>({date:r.d,k:r.k,c:r.c,i:r.i,s:r.s,q:r.q,a:r.a}));
 }
 
