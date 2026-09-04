@@ -550,7 +550,7 @@ function renderCapa(){
   const last=getLast(),cur=last.k,tc=getTotalCotas(),ta=getTotalAportes(),pl=tc*cur,lb=pl-ta,ll=lb*0.85;
   const filtered=filterByDates(),pF=filtered[0]?.k||cur,pR=(cur-pF)/pF;
   const kR=((cur/1)-1)*100,cR=((last.c/1)-1)*100,iR=((last.i/1)-1)*100,sR=((last.s/1)-1)*100;
-  let h=sectionTitle("Resumo do Clube")+`<div class="kpi-grid">${kpi("Cota Atual",cur.toFixed(6).replace(".",","))}${kpi("PL do Clube",fBRL(pl))}${kpi("Cotas",fCotas(tc))}${kpi("Lucro Bruto",fBRL(lb))}${kpi("Impostos",fBRL(lb-ll))}${kpi("Lucro Líquido",fBRL(ll))}${kpi("Início","10/07/2023")}${kpi("Última Cota",fD(last.date))}</div>`;
+  let h=sectionTitle("Resumo do Clube")+`<div class="kpi-grid">${kpi("Cota Atual",cur.toFixed(6).replace(".",","))}${kpi("PL do Clube",fBRL(pl))}${kpi("Aportes",fBRL(ta))}${kpi("Cotas",fCotas(tc))}${kpi("Lucro Bruto",fBRL(lb))}${kpi("Impostos",fBRL(lb-ll))}${kpi("Lucro Líquido",fBRL(ll))}${kpi("Início","10/07/2023")}${kpi("Última Cota",fD(last.date))}</div>`;
   h+=sectionTitle("Evolução das Cotas","margin-top:32px");
   h+=`<div class="filter-row">`;
   h+=`<span class="date-label">De:</span><input type="date" id="dfrom" class="date-input" value="${dateFrom}" onchange="applyDateFilter()">`;
