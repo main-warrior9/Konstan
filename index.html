@@ -36,12 +36,12 @@ body{background:radial-gradient(1100px 520px at 50% -8%,rgba(86,179,232,0.10),tr
 .content{padding:24px 32px 40px;animation:fadeIn 0.3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px}
-.kpi{background:var(--card);border:1px solid var(--bd);border-radius:var(--r-card);padding:16px 18px;transition:all 0.3s;position:relative;overflow:hidden;container-type:inline-size}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:var(--r-card);padding:16px 14px;transition:all 0.3s;position:relative;overflow:hidden;container-type:inline-size}
 .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--ac),transparent);opacity:0;transition:opacity 0.3s}
 .kpi:hover{background:rgba(86,179,232,0.04);border-color:rgba(86,179,232,0.15);transform:translateY(-1px)}
 .kpi:hover::before{opacity:1}
 .kpi-label{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1.6px;margin-bottom:8px;font-weight:600;font-family:'Inter',system-ui,sans-serif}
-.kpi-value{font-size:17px;font-size:clamp(12px,10.4cqi,21px);font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;letter-spacing:-0.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.kpi-value{font-size:19px;font-size:clamp(13px,11.4cqi,19px);font-weight:600;color:var(--tx);font-family:'JetBrains Mono',monospace;letter-spacing:-0.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .filter-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--bd);border-radius:var(--r-card);padding:10px 14px}
 .date-input{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:var(--r-ctrl);padding:8px 14px;color:var(--tx);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;cursor:pointer;color-scheme:dark;min-width:150px;transition:all 0.2s}
 .date-input:focus,.date-input:hover{border-color:var(--ac)}
@@ -177,7 +177,7 @@ html{scrollbar-color:rgba(86,179,232,0.25) transparent;scrollbar-width:thin}
   .kpi-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
   .kpi{padding:12px 14px;border-radius:10px}
   .kpi-label{font-size:8px;letter-spacing:1px;margin-bottom:4px}
-  .kpi-value{font-size:14px;font-size:clamp(11px,10.4cqi,16px)}
+  .kpi-value{font-size:15px;font-size:clamp(11px,11.4cqi,16px)}
   .filter-row{gap:6px;padding:8px 10px}
   .date-input{min-width:110px;padding:6px 8px;font-size:10px}
   .date-label{font-size:9px}
