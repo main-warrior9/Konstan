@@ -249,6 +249,7 @@ async function checkInvestSession(){
   try{
     const { data:{ session } } = await sbAuth.auth.getSession();
     if(session){
+      await carregarCotistas();
       investidoresUnlocked = true;
       if(currentTab === 'cotistas') renderCotistas();
     }
@@ -277,6 +278,7 @@ async function unlockInvest(){
   try{
     const { error } = await sbAuth.auth.signInWithPassword({ email, password });
     if(error) throw error;
+    await carregarCotistas();
     investidoresUnlocked = true;
     renderCotistas();
   }catch(err){
@@ -290,6 +292,7 @@ async function unlockInvest(){
 async function signOutInvest(){
   if(sbAuth){ try{ await sbAuth.auth.signOut(); }catch(e){} }
   investidoresUnlocked = false;
+  cotistas = [];
   reportSections.investidores = false;
   if(currentTab === 'cotistas') renderCotistas();
 }
@@ -385,8 +388,50 @@ async function loadData(){
   window.__ajustes = r;
   avisarAjustes(r);
 
-  ALLDATA = r.dados;
+  ALLDATA = await aplicarPassivo(r.dados);
   rawData = ALLDATA.map(r=>({date:r.d,k:r.k,c:r.c,i:r.i,s:r.s,q:r.q,a:r.a}));
+}
+
+// ---- Passivo (cotas emitidas e aportes) vindo do banco ----------------
+// Fonte: tabela public.aportes, alimentada pelo "Relatório de Passivo KNS"
+// (Safra). A RPC aportes_diarios() devolve só o agregado por data (sem dado
+// pessoal), liberada para anon. q e a do alldata.json passam a ser
+// recalculados aqui: q(d) = soma das cotas aplicadas ate d; a(d) = soma R$.
+// Se a RPC falhar, o painel segue com q/a do proprio alldata.json.
+async function aplicarPassivo(dados){
+  if(!sbAuth) return dados;
+  try{
+    const { data:ev, error } = await sbAuth.rpc('aportes_diarios');
+    if(error) throw error;
+    if(!Array.isArray(ev) || !ev.length) return dados;
+    ev.sort((x,y)=>x.data<y.data?-1:x.data>y.data?1:0);
+    let j=0,q=0,a=0;
+    const saida = dados.map(r=>{
+      while(j<ev.length && ev[j].data<=r.d){ q+=+ev[j].cotas; a+=+ev[j].valor; j++; }
+      return { ...r, q:+q.toFixed(6), a:+a.toFixed(2) };
+    });
+    const ult = dados[dados.length-1], nova = saida[saida.length-1];
+    if(Math.abs((ult.q||0)-nova.q)>0.01 || Math.abs((ult.a||0)-nova.a)>0.01)
+      console.info('[passivo] q/a substituidos pela base de aportes:', {antes:{q:ult.q,a:ult.a}, depois:{q:nova.q,a:nova.a}});
+    window.__passivo = ev;
+    return saida;
+  }catch(e){
+    console.warn('[passivo] falha ao carregar aportes_diarios — usando q/a do alldata.json:', e.message||e);
+    return dados;
+  }
+}
+
+// Posicao por conta (area restrita): view posicao_atual, protegida por RLS
+async function carregarCotistas(){
+  if(!sbAuth) return;
+  try{
+    const { data, error } = await sbAuth.from('posicao_atual').select('conta,cotas,aportes,data_posicao').order('cotas',{ascending:false});
+    if(error) throw error;
+    cotistas = (data||[]).map(c=>({conta:c.conta,cotas:+c.cotas,aportes:+c.aportes,dataPosicao:c.data_posicao}));
+  }catch(e){
+    console.error('[cotistas] falha ao carregar posicao_atual:', e.message||e);
+    cotistas = [];
+  }
 }
 
 // Inicialização do painel: carrega os dados antes de renderizar
@@ -413,7 +458,7 @@ let ALLDATA=[];
 const MN=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MN_SHORT=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 let rawData=[];
-let cotistas=[{conta:"6704186",cotas:490382.840000,aportes:682000},{conta:"6702957",cotas:480397.380000,aportes:685000},{conta:"6702965",cotas:218306.880000,aportes:247000},{conta:"6703449",cotas:171110.670000,aportes:181000}];
+let cotistas=[]; // preenchido por carregarCotistas() apos login
 let currentTab="capa",cotaChart=null,barChart=null,sharpeChart=null,ddChart=null,plChart=null,excessChart=null,riskRetChart=null,varChart=null,investidoresUnlocked=false;
 let showCDI=true,showIbov=true,showSP=true;
 let dateFrom="",dateTo="";
@@ -425,7 +470,7 @@ const fCotas=n=>{const p=n.toFixed(2).split(".");return p[0].replace(/\B(?=(\d{3
 const getLast=()=>rawData[rawData.length-1];
 const getCota=()=>getLast().k;
 const getTotalCotas=()=>getLast().q;
-const getTotalAportes=()=>cotistas.reduce((s,c)=>s+c.aportes,0);
+const getTotalAportes=()=>getLast().a;
 function fullMonth(sm){const[ms,ys]=sm.split("/");return MN[MN_SHORT.indexOf(ms)]+"/20"+ys}
 
 function filterByDates(){
