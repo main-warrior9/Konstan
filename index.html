@@ -298,11 +298,14 @@ async function signOutInvest(){
 }
 
 // ============================================
-// FONTE DE DADOS (ALLDATA) — arquivo no Supabase Storage
+// FONTE DE DADOS (ALLDATA) — tabela public.cota_diaria (Supabase)
 // ============================================
-const DATA_BUCKET = 'dados';          // nome do bucket no Supabase Storage
-const DATA_FILE   = 'alldata.json';   // nome do arquivo dentro do bucket
-const DATA_URL    = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${DATA_FILE}`;
+// cota_diaria: data, cota (k), cdi (c), ibov (i), sp500_brl (s). Leitura
+// publica via RLS. Enquanto a automacao externa ainda grava o alldata.json,
+// a tabela e sincronizada a partir dele pelo job sincronizar-cotas-alldata
+// (pg_cron, de hora em hora).
+const DATA_TABLE    = 'cota_diaria';
+const DATA_PAGE     = 1000;           // limite por requisicao do PostgREST
 
 // ---- Camada de ajuste manual de cotas -------------------------------
 // A base vem pronta de fonte externa e e sobrescrita periodicamente, entao
@@ -312,21 +315,40 @@ const DATA_URL    = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${D
 // O ajuste e CONDICIONAL. Cada entrada declara o valor errado que se espera
 // encontrar na origem (`de`). Se a origem trouxer outra coisa, o ajuste nao
 // e aplicado e vira divergencia — sinal de que a fonte foi corrigida e a
-// entrada deve sair do ajustes.json, antes que passe a estragar dado bom.
-const AJUSTES_FILE = 'ajustes.json';
-const AJUSTES_URL  = `${SUPABASE_URL}/storage/v1/object/public/${DATA_BUCKET}/${AJUSTES_FILE}`;
-const AJUSTES_EPS  = 1e-9;   // tolerancia de ponto flutuante (cotas tem 6 casas)
+// entrada deve sair da tabela ajustes_cota, antes que passe a estragar dado bom.
+const AJUSTES_TABLE = 'ajustes_cota';
+const AJUSTES_EPS   = 1e-9;   // tolerancia de ponto flutuante (cotas tem 6 casas)
 
+// Devolve { 'AAAA-MM-DD': { de, para } } — mesmo formato do antigo ajustes.json
 async function carregarAjustes(){
   try{
-    const res = await fetch(AJUSTES_URL, { cache: 'no-store' });
-    if(!res.ok) return {};              // arquivo ausente nao e erro
-    const j = await res.json();
-    return (j && typeof j === 'object' && !Array.isArray(j)) ? j : {};
+    const { data, error } = await sbAuth.from(AJUSTES_TABLE).select('data,de,para');
+    if(error) throw error;
+    const out = {};
+    (data||[]).forEach(a => { out[a.data] = { de:+a.de, para:+a.para }; });
+    return out;
   }catch(e){
-    console.warn('[ajustes] falha ao carregar', AJUSTES_FILE, '-', e.message);
+    console.warn('[ajustes] falha ao carregar', AJUSTES_TABLE, '-', e.message||e);
     return {};                          // dashboard nao pode quebrar por causa disso
   }
+}
+
+// Le a serie diaria inteira, paginando (PostgREST devolve no max. 1000 linhas)
+async function carregarCotaDiaria(){
+  if(!sbAuth) throw new Error('cliente Supabase indisponível');
+  const out = [];
+  for(let de = 0; ; de += DATA_PAGE){
+    const { data, error } = await sbAuth.from(DATA_TABLE)
+      .select('data,cota,cdi,ibov,sp500_brl,cotas_legado,aportes_legado')
+      .order('data', { ascending: true })
+      .range(de, de + DATA_PAGE - 1);
+    if(error) throw new Error(DATA_TABLE + ': ' + error.message);
+    out.push(...data);
+    if(data.length < DATA_PAGE) break;
+  }
+  // mesmo formato compacto do antigo alldata.json: tudo a jusante continua igual
+  return out.map(r => ({ d:r.data, k:+r.cota, c:+r.cdi, i:+r.ibov, s:+r.sp500_brl,
+                         q:+r.cotas_legado||0, a:+r.aportes_legado||0 }));
 }
 
 // Nao muta o array de entrada; devolve copia com as cotas corrigidas.
@@ -364,19 +386,17 @@ function avisarAjustes(r){
   const el = document.createElement('div');
   el.id = 'ajustes-aviso';
   el.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:9999;max-width:420px;background:var(--card);border:1px solid #fbbf24;border-radius:10px;padding:12px 14px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--tx3);box-shadow:0 6px 24px rgba(0,0,0,.35)';
-  el.innerHTML = `<div style="color:#fbbf24;margin-bottom:6px">ajustes.json: ${pend} pendencia(s)</div>`
+  el.innerHTML = `<div style="color:#fbbf24;margin-bottom:6px">ajustes_cota: ${pend} pendencia(s)</div>`
     + linhas.map(t => `<div style="margin-bottom:3px">${t}</div>`).join('')
-    + '<div style="margin-top:8px;color:var(--tx4)">Revise o ajustes.json no bucket.</div>'
+    + '<div style="margin-top:8px;color:var(--tx4)">Revise a tabela ajustes_cota no Supabase.</div>'
     + '<div style="margin-top:6px"><span onclick="this.closest(\'#ajustes-aviso\').remove()" style="cursor:pointer;color:var(--tx4)">fechar</span></div>';
   document.body.appendChild(el);
 }
 
-// Busca o arquivo de dados e preenche ALLDATA / rawData
+// Busca a serie diaria no banco e preenche ALLDATA / rawData
 async function loadData(){
-  const res = await fetch(DATA_URL, { cache: 'no-store' });
-  if(!res.ok) throw new Error('HTTP ' + res.status + ' ao buscar ' + DATA_FILE);
-  const json = await res.json();
-  if(!Array.isArray(json) || json.length === 0) throw new Error('Arquivo vazio ou em formato inválido');
+  const json = await carregarCotaDiaria();
+  if(!Array.isArray(json) || json.length === 0) throw new Error('Tabela ' + DATA_TABLE + ' vazia');
 
   // Ajuste entra ANTES de ALLDATA/rawData: tudo a jusante (graficos,
   // indicadores, exportXLSX, exportPDF) le desses dois.
@@ -445,7 +465,7 @@ async function bootDashboard(){
     if(content){
       content.innerHTML = `<div style="max-width:520px;margin:60px auto;text-align:center;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:32px">
         <h3 style="color:#C5C8CC;font-size:16px;margin:0 0 10px;font-family:'Inter',system-ui,sans-serif">Não foi possível carregar os dados</h3>
-        <p style="color:var(--tx3);font-size:13px;margin:0 0 8px;font-family:'Inter',system-ui,sans-serif">Verifique se o arquivo <code>${DATA_FILE}</code> existe no bucket <code>${DATA_BUCKET}</code> do Supabase Storage e se o bucket está público.</p>
+        <p style="color:var(--tx3);font-size:13px;margin:0 0 8px;font-family:'Inter',system-ui,sans-serif">Verifique se a tabela <code>${DATA_TABLE}</code> existe no Supabase (schema public) e se a leitura pública (RLS) está liberada.</p>
         <p style="color:var(--tx4);font-size:11px;margin:0;font-family:'JetBrains Mono',monospace">${(err && err.message) ? err.message : err}</p>
       </div>`;
     }
@@ -1243,7 +1263,7 @@ function buildPDF(imgs){
   setTimeout(()=>{w.print()},500);
 }
 
-// Auto-render on load — carrega os dados do Supabase Storage e então renderiza
+// Auto-render on load — carrega os dados do banco Supabase e então renderiza
 bootDashboard();
 </script>
 </body>
